@@ -11,7 +11,7 @@ setup(
     name='mp3hash',
     version='0.0.3',
     description='Music file hasher',
-    long_description=open(readme).readlines(),
+    long_description=open(readme).read(),
     author='Javier Santacruz',
     author_email='javier.santacruz.lc@gmail.com',
     url='http://github.com/jvrsantacruz/mp3hash',
