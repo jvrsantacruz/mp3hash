@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 """
 Hashes audio files ignoring metadata
@@ -23,19 +22,21 @@ Javier Santacruz 2012-06-03
 """
 
 import os
-import sys
 import struct
 import hashlib
 import logging
-from optparse import OptionParser
-
-_LOGGING_FMT_ = '%(asctime)s %(levelname)-8s %(message)s'
 
 
-def error(msg, is_exit=True):
-    logging.error(msg)
-    if is_exit:
-        sys.exit()
+def mp3hash(path, alg='sha1', maxbytes=None):
+    """Returns the hash of the sound contents of a ID3 tagged file
+    Convenience function which wraps TaggedFile
+    Returns None on failure
+    """
+    if maxbytes is not None and maxbytes <= 0:
+        raise ValueError('maxbytes should be a positive integer')
+
+    if os.path.isfile(path):
+        return TaggedFile(path).hash(maxbytes=maxbytes)
 
 
 def hashfile(ofile, start, end, alg='sha1', maxbytes=None):
@@ -234,106 +235,3 @@ class TaggedFile(object):
                 return
             else:
                 return hashfile(ofile, start, end, alg, maxbytes)
-
-
-def mp3hash(path, alg='sha1', maxbytes=None):
-    """Returns the hash of the sound contents of a ID3 tagged file
-    Convenience function which wraps TaggedFile
-    Returns None on failure
-    """
-    if maxbytes is not None and maxbytes <= 0:
-        raise ValueError('maxbytes should be a positive integer')
-
-    if os.path.isfile(path):
-        return TaggedFile(path).hash(maxbytes=maxbytes)
-
-
-def list_algorithms():
-    for alg in hashlib.algorithms:
-        print alg
-
-
-def main():
-    "Main program"
-
-    opts, args, parser = parse_arguments()
-
-    if not args and not opts.list_algorithms:
-        parser.print_help()
-        print
-        error("Insufficient arguments")
-
-    if opts.maxbytes is not None and opts.maxbytes <= 0:
-        parser.print_help()
-        print
-        error("Invalid value for --maxbytes it should be a positive integer")
-
-    if opts.list_algorithms:
-        list_algorithms()
-        sys.exit(0)
-
-    if opts.algorithm not in hashlib.algorithms:
-        error("Unkown '{0}' algorithm. Available options are: {1}"
-              .format(opts.algorithm, ", ".join(hashlib.algorithms)))
-
-    for arg in args:
-        path = os.path.realpath(arg)
-        if not os.path.isfile(path):
-            error("Couldn't open {0}. File doesn't exist or isn't a"
-                  " regular file".format(arg))
-            continue
-
-        tagfile = TaggedFile(path)
-        print tagfile.hash(opts.algorithm),  # No \n
-        print os.path.basename(path) if not opts.hash else ''
-
-
-def parse_arguments():
-    parser = OptionParser()
-
-    parser.add_option("-a", "--algorithm", dest="algorithm", action="store",
-                      default='sha1', help="Hash algorithm to use. "
-                      "Default sha1.  See --list-algorithms")
-
-    parser.add_option("-l", "--list-algorithms", dest="list_algorithms",
-                      action="store_true", default=False,
-                      help="List available algorithms")
-
-    parser.add_option("-q", "--hash", dest="hash", action="store_true",
-                      default=False, help="Print only hash information, no "
-                      "filename")
-
-    parser.add_option("-m", "--maxbytes", dest="maxbytes", action="store",
-                      default=None, help="Max number of bytes of music to hash")
-
-    parser.add_option("-o", "--output", dest="output", action="store",
-                      default=False, help="Redirect output to a file")
-
-    parser.add_option("-v", "--verbose", dest="verbose", action="count",
-                      default=0, help="")
-
-    parser.set_usage("Usage: [options] FILE [FILE ..]")
-
-    (opts, args) = parser.parse_args()
-
-    return opts, args, parser
-
-
-def configure_logging(verbose):
-    logging_levels = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
-    level = logging_levels[verbose if verbose < 3 else 2]
-    logging.basicConfig(level=level, format=_LOGGING_FMT_)
-
-
-def configure_output(output):
-    if output:
-        stdout = sys.stdout
-        try:
-            sys.stdout = open(output, 'w')
-        except IOError, err:
-            sys.stdout = stdout
-            error("Couldn't open {0}: {1}".format(output, err))
-
-
-if __name__ == "__main__":
-    main()

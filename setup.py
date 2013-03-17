@@ -20,5 +20,5 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     platforms=['Any'],
-    scripts=['mp3hash.py'],
+    scripts=['scripts/mp3hash'],
 )
