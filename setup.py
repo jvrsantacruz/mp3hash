@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from setuptools import setup, find_packages
 
+here = os.path.realpath(__file__)
+readme = os.path.dirname(os.path.join(here, 'README.rst'))
 
 setup(
     name='mp3hash',
     version='0.0.1',
     description='Music file hasher',
+    long_description=open(readme).readlines(),
     author='Javier Santacruz',
     author_email='javier.santacruz.lc@gmail.com',
     url='http://github.com/jvrsantacruz/mp3hash',
