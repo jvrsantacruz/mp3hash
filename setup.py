@@ -4,8 +4,8 @@ import os
 
 from setuptools import setup, find_packages
 
-here = os.path.realpath(__file__)
-readme = os.path.dirname(os.path.join(here, 'README.rst'))
+here = os.path.dirname(os.path.realpath(__file__))
+readme = os.path.join(here, 'README.rst')
 
 setup(
     name='mp3hash',
