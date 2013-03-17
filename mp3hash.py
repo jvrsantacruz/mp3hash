@@ -256,6 +256,18 @@ def list_algorithms():
 def main():
     "Main program"
 
+    opts, args, parser = parse_arguments()
+
+    if not args and not opts.list_algorithms:
+        parser.print_help()
+        print
+        error("Insufficient arguments")
+
+    if opts.maxbytes is not None and opts.maxbytes <= 0:
+        parser.print_help()
+        print
+        error("Invalid value for --maxbytes it should be a positive integer")
+
     if opts.list_algorithms:
         list_algorithms()
         sys.exit(0)
@@ -276,7 +288,7 @@ def main():
         print os.path.basename(path) if not opts.hash else ''
 
 
-if __name__ == "__main__":
+def parse_arguments():
     parser = OptionParser()
 
     parser.add_option("-a", "--algorithm", dest="algorithm", action="store",
@@ -304,27 +316,24 @@ if __name__ == "__main__":
 
     (opts, args) = parser.parse_args()
 
-    # Configure logging
+    return opts, args, parser
+
+
+def configure_logging(verbose):
     logging_levels = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
-    level = logging_levels[opts.verbose if opts.verbose < 3 else 2]
+    level = logging_levels[verbose if verbose < 3 else 2]
     logging.basicConfig(level=level, format=_LOGGING_FMT_)
 
-    if opts.output:
+
+def configure_output(output):
+    if output:
         stdout = sys.stdout
         try:
-            sys.stdout = open(opts.output, 'w')
+            sys.stdout = open(output, 'w')
         except IOError, err:
             sys.stdout = stdout
-            error("Couldn't open {0}: {1}".format(sys.stdout, err))
+            error("Couldn't open {0}: {1}".format(output, err))
 
-    if not args and not opts.list_algorithms:
-        parser.print_help()
-        print
-        error("Insufficient arguments")
 
-    if opts.maxbytes is not None and opts.maxbytes <= 0:
-        parser.print_help()
-        print
-        error("Invalid value for --maxbytes it should be a positive integer")
-
+if __name__ == "__main__":
     main()
