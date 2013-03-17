@@ -229,7 +229,7 @@ class TaggedFile(object):
             try:
                 start, end = self.musiclimits
             except IOError, ioerr:
-                logging.error('While parsing tags for {0}: {1}'\
+                logging.error('While parsing tags for {0}: {1}'
                               .format(self.path, ioerr))
                 return
             else:
@@ -273,14 +273,14 @@ def main():
         sys.exit(0)
 
     if opts.algorithm not in hashlib.algorithms:
-        error("Unkown '{0}' algorithm. Available options are: {1}"\
+        error("Unkown '{0}' algorithm. Available options are: {1}"
               .format(opts.algorithm, ", ".join(hashlib.algorithms)))
 
     for arg in args:
         path = os.path.realpath(arg)
         if not os.path.isfile(path):
             error("Couldn't open {0}. File doesn't exist or isn't a"
-                          " regular file".format(arg))
+                  " regular file".format(arg))
             continue
 
         tagfile = TaggedFile(path)
