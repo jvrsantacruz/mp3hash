@@ -51,7 +51,7 @@ def hashfile(ofile, start, end, alg='sha1', maxbytes=None):
     ofile.seek(start)
 
     size = end - start                 # total size in bytes to hash
-    blocksize = 524288                 # block size 512 KiB
+    blocksize = 2 ** 19                # block size 512 KiB
     nblocks = size // blocksize        # n full blocks
     firstblocksize = size % blocksize  # spare data, not enough for a block
 
