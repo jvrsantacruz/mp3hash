@@ -1,0 +1,31 @@
+0.0.5 (2013-04-07)
+------------------
+
+* Fixes id3v2 size calculation
+* Fixes gruesome integration tests
+* Changes TaggedFile interface to use file-objects instead
+
+
+0.0.4 (2013-03-17)
+------------------
+
+* Adds packaging and uploads it to pypi
+* Refactor of the package splitting it into a library and a script
+
+
+0.0.3 (2012-11-15)
+------------------
+
+* First integration tests
+
+
+0.0.2 (2012-09-20)
+------------------
+
+* Adds public function mp3hash
+
+
+0.0.1 (2012-06-03) 
+------------------
+
+* First version
