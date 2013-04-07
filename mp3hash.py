@@ -82,6 +82,24 @@ def memento(function):
     return wrapper
 
 
+def parse_7bitint(bytes, bits=7, mask=128 - 1):
+    """ Parses a big endian integer from a list of bytes
+    taking only the first 7 bits from each byte
+
+    mask: 0111 1111 (removes 8th bit)
+    shift: offset to reorder bytes as if the 8th didn't exist
+    the bytes are walked in reverse order, as it is in big endian
+
+    This is because ID3v2 uses 'sync safe integers'
+    which always have its mrb zeroed
+    """
+    return sum(
+        (bytes[-i - 1] & mask) << shift
+        for i, shift in
+        enumerate(xrange(0, len(bytes) * bits, bits))
+    )
+
+
 class TaggedFile(object):
 
     def __init__(self, file):
@@ -154,15 +172,28 @@ class TaggedFile(object):
     @property
     @memento
     def id3v2_size(self):
-        "Returns the size in bytes of the id3v2 tag"
+        """ Returns the size in bytes of the id3v2 tag
+        id3v2 header is 10 bytes long which starts with ID3:
+            0 I
+            1 D
+            2 3
+            3 Version number
+            4 Version revision
+            5 Flags
+            6 Size 4 7bit bytes big endian
+            7
+            8
+            9
+        """
         if not self.has_id3v2:
             return 0
 
         self.file.seek(6)
-        # id3v2 size big endian 4 bytes
-        size, = struct.unpack('>i', self.file.read(4))
-        size += 10  # header itself
-        return size
+        # id3v2 size big endian 7bit 4 bytes
+        size_byte_string, = struct.unpack('>4s', self.file.read(4))
+        size = parse_7bitint([ord(i) for i in size_byte_string])
+
+        return size + 10  # header size not included
 
     @property
     @memento
@@ -172,11 +203,16 @@ class TaggedFile(object):
             return 0
 
         self.file.seek(self.id3v2_size)
-        size = struct.unpack('>i', self.file.read(4))
+        size_byte_string, = struct.unpack('>i', self.file.read(4))
+        size = parse_7bitint([ord(i) for i in size_byte_string])
+
         flags, = struct.unpack('>bb', self.file.read(2))
         crc = 4 if flags & 8 else 0  # flags are A000 get A
-        padding = struct.upnack('>i', self.file.read(4))
-        return size + crc + padding + 10
+
+        padding_byte_string, = struct.upnack('>i', self.file.read(4))
+        padding = parse_7bitint([ord(i) for i in padding_byte_string])
+
+        return size + crc + padding + 10  # header size not included
 
     @property
     @memento
