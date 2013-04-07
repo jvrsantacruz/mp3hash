@@ -165,7 +165,7 @@ class TaggedFile(object):
         if self.filesize < self.id3v2_size:
             return False
 
-        self.file.seek(5)
+        self.file.seek(5)  # jump header
         flags, = struct.unpack('>b', self.file.read(1))
         return bool(flags & 0x40)  # xAx0 0000 get A from byte
 
@@ -223,26 +223,26 @@ class TaggedFile(object):
     @property
     @memento
     def startbyte(self):
-        "Returns the byte where the music starts in file"
+        "Returns the starting byte position of music data in the file"
         return self.id3v2_totalsize
 
     @property
     @memento
     def endbyte(self):
-        "Returns the last byte of music data in file"
+        "Returns the last byte position of music data in the file"
         self.file.seek(-self.id3v1_totalsize, 2)
         return self.file.tell()
 
     @property
     @memento
     def musiclimits(self):
-        "Returns the (start, end) for music in file"
+        "Returns the (start, end) for music in the file"
         return (self.startbyte, self.endbyte)
 
     @property
     @memento
     def music_size(self):
-        "Returns the total count of bytes of music in file"
+        "Returns the total count of music data bytes in the file"
         return self.filesize - self.id3v1_totalsize - self.id3v2_totalsize
 
     def hash(self, alg='sha1', maxbytes=None):
