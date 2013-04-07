@@ -7,71 +7,70 @@ import hashlib
 import mutagen
 
 from hamcrest import *
-from nose.tools import *
+from nose.tools import raises
 
 from mp3hash import mp3hash
 
 
-class BaseTest(object):
+SONG1_PATH = 'tests/file1.mp3'
+SONG2_PATH = 'tests/file2.mp3'
 
-    def setup(self):
-        self.song1_path = 'tests/file1.mp3'
-        self.song2_path = 'tests/file2.mp3'
-
-        shutil.copy(self.song1_path, self.song2_path)
-
-        self.song1_size = os.path.getsize(self.song1_path)
-        self.song2_size = os.path.getsize(self.song2_path)
-
-    def test_setup(self):
-        assert_that(self.song1_size, is_(equal_to(self.song2_size)))
-
-    def tearDown(self):
-        try:
-            #os.unlink(self.song2_path)
-            pass
-        except OSError:
-            pass
+SONG_SIZE = os.path.getsize(SONG1_PATH)
 
 
-class TestIdenticFiles(BaseTest):
+class IdenticalFiles(object):
+    @classmethod
+    def setup_class(cls):
+        shutil.copy(SONG1_PATH, SONG2_PATH)
+
+
+class TestSameDataButNoTags(IdenticalFiles):
+    @classmethod
+    def setup_class(cls):
+        shutil.copy(SONG1_PATH, SONG2_PATH)
+        f = mutagen.File(SONG2_PATH)
+        f.clear()
+        f.save()
+
+
+class HashOperations(object):
     def test_mp3hash(self):
-        hash1 = mp3hash(self.song1_path)
-        hash2 = mp3hash(self.song2_path)
+        hash1 = mp3hash(SONG1_PATH)
+        hash2 = mp3hash(SONG2_PATH)
         assert_that(hash1, is_(equal_to(hash2)))
 
     def test_algs(self):
         "Test generator for every algorithm"
         for alg in hashlib.algorithms:
-            self.check_algs(alg)
+            yield self.check_algs, alg
 
     def check_algs(self, alg):
-        hash1 = mp3hash(self.song1_path, alg=alg)
-        hash2 = mp3hash(self.song2_path, alg=alg)
+        hash1 = mp3hash(SONG1_PATH, alg=alg)
+        hash2 = mp3hash(SONG2_PATH, alg=alg)
         assert_that(hash1, is_(equal_to(hash2)))
 
     def test_maxbytes_all(self):
         "Test generator for multiple sizes"
-        for num in range(1, self.song1_size, 250):
-            self.check_num(num)
+        for num in range(1, SONG_SIZE, 250 * 1024):
+            yield self.check_num, num
 
     def check_num(self, maxbytes):
-        hash1 = mp3hash(self.song1_path, maxbytes=maxbytes)
-        hash2 = mp3hash(self.song2_path, maxbytes=maxbytes)
+        hash1 = mp3hash(SONG1_PATH, maxbytes=maxbytes)
+        hash2 = mp3hash(SONG2_PATH, maxbytes=maxbytes)
         assert_that(hash1, is_(equal_to(hash2)))
 
     @raises(ValueError)
     def test_maxbytes_negative(self):
-        mp3hash(self.song1_path, maxbytes=-15)
+        mp3hash(SONG1_PATH, maxbytes=-15)
 
     @raises(ValueError)
     def test_maxbytes_0(self):
-        mp3hash(self.song1_path, maxbytes=-15)
+        mp3hash(SONG1_PATH, maxbytes=-15)
 
 
-class TestSameDataButNoTags(TestIdenticFiles):
-    def setup(self):
-        super(TestSameDataButNoTags, self).setup()
-        f = mutagen.File(self.song2_path)
-        f.clear()
-        f.save()
+class TestHashIdenticFile(IdenticalFiles, HashOperations):
+    pass
+
+
+class TestHashSameDataButNoTags(TestSameDataButNoTags, HashOperations):
+    pass
