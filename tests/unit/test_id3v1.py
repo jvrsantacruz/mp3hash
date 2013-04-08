@@ -2,7 +2,7 @@
 
 from StringIO import StringIO
 
-from hamcrest import *
+from hamcrest import assert_that, is_
 
 from mp3hash import TaggedFile
 
@@ -40,3 +40,19 @@ class TestID3v1(object):
         tagged = TaggedFile(file)
 
         assert_that(not tagged.has_id3v1)
+
+
+class TestID3v1Size(object):
+    def test_id3v1_size_is_128_if_there_is_tag(self):
+        file = StringIO(MP3_ID3v1_TAGGED)
+
+        tagged = TaggedFile(file)
+
+        assert_that(tagged.id3v1_size, is_(128))
+
+    def test_id3v1_size_is_0_if_no_tag_is_present(self):
+        file = StringIO(MP3_ID3v1_NOT_TAGGED)
+
+        tagged = TaggedFile(file)
+
+        assert_that(tagged.id3v1_size, is_(0))
