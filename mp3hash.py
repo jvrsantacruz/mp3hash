@@ -106,7 +106,8 @@ class TaggedFile(object):
 
     def __init__(self, file):
         self.file = file
-        self.filesize = os.fstat(file.fileno()).st_size
+        self.file.seek(0, 2)  # end of file
+        self.filesize = self.file.tell()
 
     @property
     @memento
