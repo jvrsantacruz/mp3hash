@@ -102,6 +102,10 @@ def parse_7bitint(bytes, bits=7, mask=(1 << 7) - 1):
     )
 
 
+ID3V1_SIZE = 128
+ID3V1_EXTENDED_SIZE = ID3V1_SIZE + 227
+
+
 class TaggedFile(object):
 
     def __init__(self, file):
@@ -113,37 +117,33 @@ class TaggedFile(object):
     @memento
     def has_id3v1(self):
         "Returns True if the file is id3v1 tagged"
-        if self.filesize < 128:  # at least 128 bytes are needed
+        if self.filesize < ID3V1_SIZE:
             return False
 
-        self.file.seek(-128, 2)
+        self.file.seek(-ID3V1_SIZE, 2)  # last bytes of file
         return self.file.read(3) == 'TAG'
 
     @property
     @memento
     def has_id3v1ext(self):
         "Returns True if the file is id3v1 with extended tag"
-        if self.filesize < 128 + 227:
+        if self.filesize < ID3V1_EXTENDED_SIZE:
             return False
 
-        self.file.seek(-(227 + 128), 2)  # 227 before regular tag
+        self.file.seek(-ID3V1_EXTENDED_SIZE, 2)  # 227 before regular tag
         return self.file.read(4) == 'TAG+'
 
     @property
     @memento
     def id3v1ext_size(self):
         "Returns the size of the extended tag if exists"
-        if self.has_id3v1ext:
-            return 227
-        return 0
+        return ID3V1_EXTENDED_SIZE if self.has_id3v1ext else 0
 
     @property
     @memento
     def id3v1_size(self):
         "Returns the size in bytes of the id3v1 tag"
-        if self.has_id3v1:
-            return 128
-        return 0
+        return ID3V1_SIZE if self.has_id3v1 else 0
 
     @property
     @memento

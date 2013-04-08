@@ -4,11 +4,11 @@ from StringIO import StringIO
 
 from hamcrest import assert_that, is_
 
-from mp3hash import TaggedFile
+from mp3hash import TaggedFile, ID3V1_SIZE
 
 
-MP3_ID3v1_NOT_TAGGED = '\n' * 128
-MP3_ID3v1_TAGGED = 'TAG' + '\n' * (128 - 3)
+MP3_ID3v1_NOT_TAGGED = '\n' * ID3V1_SIZE
+MP3_ID3v1_TAGGED = 'TAG' + '\n' * (ID3V1_SIZE - 3)
 MP3_ID3v1_TAGGED_AND_FILLED = '\n' * 512 + MP3_ID3v1_TAGGED
 
 
@@ -48,7 +48,7 @@ class TestID3v1Size(object):
 
         tagged = TaggedFile(file)
 
-        assert_that(tagged.id3v1_size, is_(128))
+        assert_that(tagged.id3v1_size, is_(ID3V1_SIZE))
 
     def test_id3v1_size_is_0_if_no_tag_is_present(self):
         file = StringIO(MP3_ID3v1_NOT_TAGGED)
