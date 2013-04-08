@@ -33,7 +33,7 @@ def mp3hash(path, alg='sha1', maxbytes=None):
     Returns None on failure
     """
     if maxbytes is not None and maxbytes <= 0:
-        raise ValueError('maxbytes should be a positive integer')
+        raise ValueError(u'maxbytes should be a positive integer')
 
     if os.path.isfile(path):
         with open(path, 'rb') as ofile:
@@ -56,7 +56,7 @@ def hashfile(ofile, start, end, alg='sha1', maxbytes=None):
     nblocks = size // blocksize        # n full blocks
     firstblocksize = size % blocksize  # spare data, not enough for a block
 
-    logging.debug("Start: {0} End: {1} Size: {2}".format(start, end, size))
+    logging.debug(u"Start: {0} End: {1} Size: {2}".format(start, end, size))
 
     block = ''
     try:
@@ -252,7 +252,7 @@ class TaggedFile(object):
         try:
             start, end = self.musiclimits
         except IOError, ioerr:
-            logging.error('While parsing tags: {}'.format(ioerr))
+            logging.error(u'While parsing tags: {}'.format(ioerr))
             return
         else:
             return hashfile(self.file, start, end, alg, maxbytes)
