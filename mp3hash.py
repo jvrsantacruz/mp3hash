@@ -203,13 +203,13 @@ class TaggedFile(object):
             return 0
 
         self.file.seek(self.id3v2_size)
-        size_byte_string, = struct.unpack('>i', self.file.read(4))
+        size_byte_string, = struct.unpack('>4s', self.file.read(4))
         size = parse_7bitint([ord(i) for i in size_byte_string])
 
         flags, = struct.unpack('>bb', self.file.read(2))
         crc = 4 if flags & 8 else 0  # flags are A000 get A
 
-        padding_byte_string, = struct.upnack('>i', self.file.read(4))
+        padding_byte_string, = struct.upnack('>4s', self.file.read(4))
         padding = parse_7bitint([ord(i) for i in padding_byte_string])
 
         return size + crc + padding + 10  # header size not included
