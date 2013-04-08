@@ -82,9 +82,11 @@ def memento(function):
     return wrapper
 
 
-def parse_7bitint(bytes, bits=7, mask=128 - 1):
+def parse_7bitint(bytes, bits=7, mask=(1 << 7) - 1):
     """ Parses a big endian integer from a list of bytes
     taking only the first 7 bits from each byte
+
+    Do not set bits and mask parameters.
 
     mask: 0111 1111 (removes 8th bit)
     shift: offset to reorder bytes as if the 8th didn't exist
