@@ -164,11 +164,11 @@ class TaggedFile(object):
     @memento
     def has_id3v2(self):
         "Returns True if the file is id3v2 tagged"
-        if self.filesize < 10:  # 10 bytes at least for the header
+        if self.filesize < ID3V2_HEADER_SIZE:
             return False
 
-        self.file.seek(0)
-        return self.file.read(3) == 'ID3'
+        id3, ver, rev, flags, size = self._id3v2_header
+        return id3 == 'ID3'
 
     @property
     @memento
@@ -177,8 +177,7 @@ class TaggedFile(object):
         if self.filesize < self.id3v2_size:
             return False
 
-        self.file.seek(5)  # jump header
-        flags, = struct.unpack('>b', self.file.read(1))
+        id3, ver, rev, flags, size = self._id3v2_header
         return bool(flags & 0x40)  # xAx0 0000 get A from byte
 
     @property
@@ -200,12 +199,8 @@ class TaggedFile(object):
         if not self.has_id3v2:
             return 0
 
-        self.file.seek(6)
-        # id3v2 size big endian 7bit 4 bytes
-        size_byte_string, = struct.unpack('>4s', self.file.read(4))
-        size = parse_7bitint([ord(i) for i in size_byte_string])
-
-        return size + 10  # header size not included
+        id3, ver, rev, flags, size = self._id3v2_header
+        return size + ID3V2_HEADER_SIZE
 
     @property
     @memento
@@ -224,7 +219,7 @@ class TaggedFile(object):
         padding_byte_string, = struct.upnack('>4s', self.file.read(4))
         padding = parse_7bitint([ord(i) for i in padding_byte_string])
 
-        return size + crc + padding + 10  # header size not included
+        return size + crc + padding + ID3V2_EXTENDED_HEADER_SIZE
 
     @property
     @memento
