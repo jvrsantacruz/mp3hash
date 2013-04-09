@@ -100,6 +100,9 @@ def parse_7bitint(bytes, bits=7, mask=(1 << 7) - 1):
 ID3V1_SIZE = 128
 ID3V1_EXTENDED_SIZE = ID3V1_SIZE + 227
 
+ID3V2_HEADER_SIZE = 10
+ID3V2_EXTENDED_HEADER_SIZE = 10
+
 
 class TaggedFile(object):
 
@@ -145,6 +148,17 @@ class TaggedFile(object):
     def id3v1_totalsize(self):
         "Returns the size in bytes of the id3v1 tag"
         return self.id3v1_size + self.id3v1ext_size
+
+    @property
+    @memento
+    def _id3v2_header(self):
+        "Returns id3v2 header: (id3, version, revision, flags, size)"
+        self.file.seek(0)
+        header = self.file.read(ID3V2_HEADER_SIZE)
+
+        id3, v, r, flags, size = struct.unpack('>3sBBB4s', header)
+
+        return id3, v, r, flags, parse_7bitint(map(ord, size))
 
     @property
     @memento
