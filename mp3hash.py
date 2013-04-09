@@ -152,7 +152,20 @@ class TaggedFile(object):
     @property
     @memento
     def _id3v2_header(self):
-        "Returns id3v2 header: (id3, version, revision, flags, size)"
+        """Returns id3v2 header: (id3, version, revision, flags, size)
+
+        id3v2 header is 10 bytes long which starts with ID3:
+            0 I
+            1 D
+            2 3
+            3 Version number
+            4 Version revision
+            5 Flags
+            6 Size 4 7bit bytes big endian
+            7
+            8
+            9
+        """
         self.file.seek(0)
         header = self.file.read(ID3V2_HEADER_SIZE)
 
@@ -172,6 +185,43 @@ class TaggedFile(object):
 
     @property
     @memento
+    def id3v2_size(self):
+        " Returns the size in bytes of the whole id3v2 tag"
+        if not self.has_id3v2:
+            return 0
+
+        id3, ver, rev, flags, size = self._id3v2_header
+        return size + ID3V2_HEADER_SIZE
+
+    @property
+    @memento
+    def _id3v2ext_header(self):
+        """Returns id3v2 extended header: (size, flags, padding)
+
+        id3v2 extended header is found inmediately after the id3v2 tags
+        its 10 bytes long:
+            0 Size 4 7bit bytes big endian
+            1
+            2
+            3
+            4 Flags1
+            5 Flags0
+            6 Padding 4 7bit bytes big endian
+            7
+            8
+            9
+        """
+        self.file.seek(self.id3v2_size)
+        header = self.file.reader(ID3V2_EXTENDED_HEADER_SIZE)
+
+        size, flags, padding = struct.unpack('>4sBB4s', header)
+
+        return (parse_7bitint(map(ord, size)),
+                flags,
+                parse_7bitint(map(ord, padding)))
+
+    @property
+    @memento
     def has_id3v2ext(self):
         "Returns True if the file has id3v2 extended header"
         if self.filesize < self.id3v2_size:
@@ -179,28 +229,6 @@ class TaggedFile(object):
 
         id3, ver, rev, flags, size = self._id3v2_header
         return bool(flags & 0x40)  # xAx0 0000 get A from byte
-
-    @property
-    @memento
-    def id3v2_size(self):
-        """ Returns the size in bytes of the id3v2 tag
-        id3v2 header is 10 bytes long which starts with ID3:
-            0 I
-            1 D
-            2 3
-            3 Version number
-            4 Version revision
-            5 Flags
-            6 Size 4 7bit bytes big endian
-            7
-            8
-            9
-        """
-        if not self.has_id3v2:
-            return 0
-
-        id3, ver, rev, flags, size = self._id3v2_header
-        return size + ID3V2_HEADER_SIZE
 
     @property
     @memento
