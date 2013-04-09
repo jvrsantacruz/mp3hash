@@ -39,7 +39,7 @@ def mp3hash(path, alg='sha1', maxbytes=None):
 
 
 def hashfile(ofile, start, end, alg='sha1', maxbytes=None):
-    """Hashes a open file data starting from byte 'start' to the byte 'end'
+    """Hashes an open file data starting from byte 'start' to the byte 'end'
     max is the maximun amount of data to hash, in bytes.
     The hexdigest string is calculated considering only bytes between start,end
     """
