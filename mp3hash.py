@@ -59,16 +59,13 @@ def hashfile(ofile, start, end, alg='sha1', maxbytes=None):
     logging.debug(u"Start: {0} End: {1} Size: {2}".format(start, end, size))
 
     block = ''
-    try:
-        if firstblocksize > 0:
-            block = ofile.read(firstblocksize)
-            hasher.update(block)
+    if firstblocksize > 0:
+        block = ofile.read(firstblocksize)
+        hasher.update(block)
 
-        for i in xrange(nblocks):
-            hasher.update(block)
-            block = ofile.read(blocksize)
-    finally:
-        ofile.close()
+    for i in xrange(nblocks):
+        hasher.update(block)
+        block = ofile.read(blocksize)
 
     return hasher.hexdigest()
 
