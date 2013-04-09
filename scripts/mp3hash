@@ -25,32 +25,30 @@ def list_algorithms():
 
 
 def main():
-    "Main program"
-
     opts, args, parser = parse_arguments()
 
     if not args and not opts.list_algorithms:
         parser.print_help()
         print
-        error("Insufficient arguments")
+        error(u"Insufficient arguments")
 
     if opts.maxbytes is not None and opts.maxbytes <= 0:
         parser.print_help()
         print
-        error("Invalid value for --maxbytes it should be a positive integer")
+        error(u"Invalid value for --maxbytes it should be a positive integer")
 
     if opts.list_algorithms:
         list_algorithms()
         sys.exit(0)
 
     if opts.algorithm not in hashlib.algorithms:
-        error("Unkown '{0}' algorithm. Available options are: {1}"
+        error(u"Unkown '{}' algorithm. Available options are: {}"
               .format(opts.algorithm, ", ".join(hashlib.algorithms)))
 
     for arg in args:
         path = os.path.realpath(arg)
         if not os.path.isfile(path):
-            error("Couldn't open {0}. File doesn't exist or isn't a"
+            error(u"Couldn't open {}. File doesn't exist or isn't a"
                   " regular file".format(arg))
             continue
 
@@ -99,7 +97,7 @@ def configure_output(output):
             sys.stdout = open(output, 'w')
         except IOError, err:
             sys.stdout = stdout
-            error("Couldn't open {0}: {1}".format(output, err))
+            error(u"Couldn't open {}: {}".format(output, err))
 
 
 if __name__ == "__main__":
