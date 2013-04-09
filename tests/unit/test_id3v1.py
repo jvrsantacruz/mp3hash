@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 
-from StringIO import StringIO
+from cStringIO import StringIO
 
 from hamcrest import assert_that, is_
 
