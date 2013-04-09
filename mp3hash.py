@@ -38,32 +38,30 @@ def mp3hash(path, alg='sha1', maxbytes=None):
         return TaggedFile(ofile).hash(maxbytes=maxbytes)
 
 
-def hashfile(ofile, start, end, alg='sha1', maxbytes=None):
+def hashfile(file, start, end, alg='sha1', maxbytes=None, blocksize=2 ** 19):
     """Hashes an open file data starting from byte 'start' to the byte 'end'
     max is the maximun amount of data to hash, in bytes.
     The hexdigest string is calculated considering only bytes between start,end
+    default block size is 512 KiB
     """
     if maxbytes > 0:
         end = min(end, start + maxbytes)
 
     hasher = hashlib.new(alg)
-    ofile.seek(start)
+
+    file.seek(start)
 
     size = end - start                 # total size in bytes to hash
-    blocksize = 2 ** 19                # block size 512 KiB
     nblocks = size // blocksize        # n full blocks
-    firstblocksize = size % blocksize  # spare data, not enough for a block
-
-    logging.debug(u"Start: {0} End: {1} Size: {2}".format(start, end, size))
-
-    block = ''
-    if firstblocksize > 0:
-        block = ofile.read(firstblocksize)
-        hasher.update(block)
+    last_blocksize = size % blocksize   # spare data, not enough for a block
 
     for i in xrange(nblocks):
+        block = file.read(blocksize)
         hasher.update(block)
-        block = ofile.read(blocksize)
+
+    if last_blocksize:
+        block = file.read(last_blocksize)
+        hasher.update(block)
 
     return hasher.hexdigest()
 
