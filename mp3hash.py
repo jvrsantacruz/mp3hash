@@ -45,7 +45,7 @@ def hashfile(ofile, start, end, alg='sha1', maxbytes=None):
     max is the maximun amount of data to hash, in bytes.
     The hexdigest string is calculated considering only bytes between start,end
     """
-    if maxbytes:
+    if maxbytes > 0:
         end = min(end, start + maxbytes)
 
     hasher = hashlib.new(alg)
