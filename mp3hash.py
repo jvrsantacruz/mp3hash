@@ -237,17 +237,10 @@ class TaggedFile(object):
         if not self.has_id3v2 or not self.has_id3v2ext:
             return 0
 
-        self.file.seek(self.id3v2_size)
-        size_byte_string, = struct.unpack('>4s', self.file.read(4))
-        size = parse_7bitint([ord(i) for i in size_byte_string])
+        size, flags, padding_size = self._id3v2ext_header
+        crc_size = 4 if flags & 0x08 else 0  # flags are A000, get A
 
-        flags, = struct.unpack('>bb', self.file.read(2))
-        crc = 4 if flags & 8 else 0  # flags are A000 get A
-
-        padding_byte_string, = struct.upnack('>4s', self.file.read(4))
-        padding = parse_7bitint([ord(i) for i in padding_byte_string])
-
-        return size + crc + padding + ID3V2_EXTENDED_HEADER_SIZE
+        return size + crc_size + padding_size + ID3V2_EXTENDED_HEADER_SIZE
 
     @property
     @memento
