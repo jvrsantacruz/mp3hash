@@ -61,26 +61,23 @@ def main():
 def parse_arguments():
     parser = OptionParser()
 
-    parser.add_option("-a", "--algorithm", dest="algorithm", action="store",
-                      default='sha1', help="Hash algorithm to use. "
-                      "Default sha1.  See --list-algorithms")
+    parser.add_option("-a", "--algorithm", default='sha1',
+                      help="Hash algorithm to use. Default sha1.  "
+                      "See --list-algorithms")
 
-    parser.add_option("-l", "--list-algorithms", dest="list_algorithms",
-                      action="store_true", default=False,
-                      help="List available algorithms")
+    parser.add_option("-l", "--list-algorithms", action="store_true",
+                      default=False, help="List available algorithms")
 
-    parser.add_option("-q", "--hash", dest="hash", action="store_true",
-                      default=False, help="Print only hash information, no "
-                      "filename")
+    parser.add_option("-q", "--hash", action="store_true", default=False,
+                      help="Print only hash information, no filename")
 
-    parser.add_option("-m", "--maxbytes", dest="maxbytes", action="store",
-                      default=None, help="Max number of bytes of music to hash")
+    parser.add_option("-m", "--maxbytes", type=int, default=None,
+                      help="Max number of bytes of music to hash")
 
-    parser.add_option("-o", "--output", dest="output", action="store",
-                      default=False, help="Redirect output to a file")
+    parser.add_option("-o", "--output", default=False,
+                      help="Redirect output to a file")
 
-    parser.add_option("-v", "--verbose", dest="verbose", action="count",
-                      default=0, help="")
+    parser.add_option("-v", "--verbose", action="count", default=0)
 
     parser.set_usage("Usage: [options] FILE [FILE ..]")
 
