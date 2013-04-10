@@ -14,7 +14,7 @@ Javier Santacruz (2012-2013)
 
 Similarly to `sha1sum` or `md5sum`, it takes one or more files and returns the hashes, in this way:
 
-```shell
+```bash
 $ mp3hash *.mp3
 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33 13_Hotel-California-(Gipsy-Kings).mp3
 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33 14_Hotel-California-(Gipsy-Kings).mp3
@@ -22,7 +22,7 @@ $ mp3hash *.mp3
 
 It returns the same hash number, even though the tags are different, and so their regular hashes:
 
-```shell
+```bash
 $ sha1sum *.mp3
 6a1d5f8317add10e205ae30174630b47645fb5b4  13_Hotel-California-(Gipsy-Kings).mp3
 c28d6976114d31df3366d9935eb0bedd36cf1f0b  14_Hotel-California-(Gipsy-Kings).mp3
@@ -35,7 +35,7 @@ The default hashing algorithm is `sha-1`, but any algorithm can be used as long 
 the Python's `hashlib` module. A complete list of all available hashing algorithms can be obtained
 by calling the program with the `--list-algorithms`.
 
-```shell
+```bash
 $ ./mp3hash --list-algorithms
 md5
 sha1
@@ -45,7 +45,7 @@ sha384
 sha512
 ```
 
-```shell
+```bash
 ./mp3hash --algorithm md5
 ac0fdd89454528d3fbdb19942a2e6653 13_Hotel-California-(Gipsy-Kings).mp3
 ac0fdd89454528d3fbdb19942a2e6653 14_Hotel-California-(Gipsy-Kings).mp3
@@ -116,11 +116,6 @@ $ nosetests
 
 - id3v1 is 128 bytes at the end of the file starting with 'TAG'
 - id3v1 extended is 227 bytes before regular id3v1 tag starting with 'TAG+'
-
-total size: 128 + (227 if extended)
-
-id3v1 is 128 bytes at the end of the file starting with 'TAG'
-id3v1 extended is 227 bytes before regular id3v1 tag starting with 'TAG+'
 
 total size: 128 + (227 if extended)
 
