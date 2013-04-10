@@ -60,18 +60,21 @@ The main components are the mp3hash function and the TaggedFile class.
 - mp3hash will compute the hash on the music (and only the music)
   of the file in the given path.
 
-    >> from mp3hash import mp3hash
-    >> mp3hash('/path/to/song.mp3')
-    Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
+
+        >> from mp3hash import mp3hash
+        >> mp3hash('/path/to/song.mp3')
+        Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
+
 
 - TaggedFile class takes a file-like object supporting
   seek and negative values for seek and will parse all the sizes
   for the metadata stored within it.
 
-    >> from mp3hash import TaggedFile
-    >> with open('/path/to/song.mp3') as file:
-           TaggedFile(file).has_id3v2
-    Out: True
+
+        >> from mp3hash import TaggedFile
+        >> with open('/path/to/song.mp3') as file:
+            TaggedFile(file).has_id3v2
+        Out: True
 
 
 # Developers, developers, developers!
