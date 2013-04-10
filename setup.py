@@ -9,7 +9,7 @@ readme = os.path.join(here, 'README.rst')
 
 setup(
     name='mp3hash',
-    version='0.0.5',
+    version='0.0.6',
     description='Music file hasher',
     long_description=open(readme).read(),
     author='Javier Santacruz',
