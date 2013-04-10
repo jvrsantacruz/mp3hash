@@ -251,9 +251,7 @@ class TaggedFile(object):
         return self.filesize - self.id3v1_totalsize - self.id3v2_totalsize
 
     def hash(self, hasher, maxbytes=None):
-        """Returns the hash for a certain audio file ignoring tags
-        Non cached function. Calculates the hash each time it's called
-        """
+        """Returns the hash for a certain audio file ignoring tags """
         try:
             start, end = self.musiclimits
         except IOError, ioerr:
