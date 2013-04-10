@@ -4,7 +4,13 @@ Hashes music files ignoring meta-data.
 
 Useful to detect the same song in different tagged files.
 
-# Use
+The following metadata standards are supported:
+
+    id3v1, id3v1 extended, id3v2.2, id3v2.3 and id3v.24
+
+Javier Santacruz (2012-2013)
+
+# Command line usage
 
 Similarly to `sha1sum` or `md5sum`, it takes one or more files and returns the hashes, in this way:
 
@@ -37,15 +43,54 @@ by calling the program with the `--list-algorithms`.
 	ac0fdd89454528d3fbdb19942a2e6653 13_Hotel-California-(Gipsy-Kings).mp3
 	ac0fdd89454528d3fbdb19942a2e6653 14_Hotel-California-(Gipsy-Kings).mp3
 
-# Install
 
-It doesn't have any dependences besides `python2.6+` so you should be able to run the script
-straight.
+# Installation
 
-# Technical details
+It doesn't have any dependences besides `python2.7+`.
+In order to access to the `mp3hash` script, the package should be installed.
 
-Supported and ignored meta-data tags are: id3v1, id3v2 both in their simple and indexed forms
+    python setup.py install
 
+And the `mp3hash` command should be available in path.
+
+# API
+
+The main components are the mp3hash function and the TaggedFile class.
+
+- mp3hash will compute the hash on the music (and only the music)
+  of the file in the given path.
+
+    >> from mp3hash import mp3hash
+    >> mp3hash('/path/to/song.mp3')
+    Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
+
+- TaggedFile class takes a file-like object supporting
+  seek and negative values for seek and will parse all the sizes
+  for the metadata stored within it.
+
+    >> from mp3hash import TaggedFile
+    >> with open('/path/to/song.mp3') as file:
+           TaggedFile(file).has_id3v2
+    Out: True
+
+
+# Developers, developers, developers!
+
+## Testing environment
+
+You're adviced to use a virtualenv
+
+    $ virtualenv --python python2 --distribute env
+    $ . env/bin/activate
+
+Once into the virtualenv, install the package and the testing dependences.
+
+    $(env) python setup.py develop
+    $(env) pip install -r dev-reqs.txt
+
+In order to perform the testing, run 'nosetests' from the root of the project (same dir of setup.py).
+
+    $ nosetests
 
 ## About id3v1
 
@@ -54,18 +99,22 @@ Supported and ignored meta-data tags are: id3v1, id3v2 both in their simple and 
 
 total size: 128 + (227 if extended)
 
+id3v1 is 128 bytes at the end of the file starting with 'TAG'
+id3v1 extended is 227 bytes before regular id3v1 tag starting with 'TAG+'
+
+total size: 128 + (227 if extended)
+
 ## About id3v2
 
-- id3v2 header have the following fields alog the 10 first bytes in the file
-		- byte 5 holds flags. 6th bit indicates extended tag
-		- bytes 6-10 are the tag size (not counting header)
+id3v2 has a 10 bytes header at the begining of the file.
+      byte 5 holds flags. 4th bit indicates presence of footer in v2.4
+      bytes 6-10 are the tag size (not counting header)
 
-- id3v2 extended has a 10 bytes header after the regular id3v2
-		- bytes 1-4 are the tag size (not counting header nor padding)
-		- bytes 5-6 holds some flags. Leftmost bit indicates CRC presence
-		- bytes 6-10 are the tag padding size (extra blank size within tag)
-
-total size: 10 + tagsize + (10 + etagsize + padding if extended)
+total size: header + tagsize + footer (if any)
 
 Based on id3v1 wikipedia docs: http://en.wikipedia.org/wiki/ID3
-Based on id3v2 docs: http://www.id3.org/id3v2.3.0
+Based on id3v2 docs:
+
+- http://id3.org/id3v2-00
+- http://www.id3.org/id3v2.3.0
+- http://id3.org/id3v2.4.0-structure
