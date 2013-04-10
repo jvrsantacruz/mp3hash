@@ -184,67 +184,18 @@ class TaggedFile(object):
     @property
     @memento
     def id3v2_size(self):
-        " Returns the size in bytes of the whole id3v2 tag"
+        """ Returns the size in bytes of the whole id3v2 tag
+
+        """
         if not self.has_id3v2:
             return 0
 
         id3, ver, rev, flags, size = self._id3v2_header
-        return size + ID3V2_HEADER_SIZE
 
-    @property
-    @memento
-    def _id3v2ext_header(self):
-        """Returns id3v2 extended header: (size, flags, padding)
 
-        id3v2 extended header is found inmediately after the id3v2 tags
-        its 10 bytes long:
-            0 Size 4 7bit bytes big endian
-            1
-            2
-            3
-            4 Flags1
-            5 Flags0
-            6 Padding 4 7bit bytes big endian
-            7
-            8
-            9
-        """
-        self.file.seek(self.id3v2_size)
-        header = self.file.reader(ID3V2_EXTENDED_HEADER_SIZE)
+        return ID3V2_HEADER_SIZE + size
 
-        size, flags, padding = struct.unpack('>4sBB4s', header)
-
-        return (parse_7bitint(map(ord, size)),
-                flags,
-                parse_7bitint(map(ord, padding)))
-
-    @property
-    @memento
-    def has_id3v2ext(self):
-        "Returns True if the file has id3v2 extended header"
-        if self.filesize < self.id3v2_size:
-            return False
-
-        id3, ver, rev, flags, size = self._id3v2_header
-        return bool(flags & 0x40)  # xAx0 0000 get A from byte
-
-    @property
-    @memento
-    def id3v2ext_size(self):
-        "Returns the size in bytes of the id3v2 extended tag"
-        if not self.has_id3v2 or not self.has_id3v2ext:
-            return 0
-
-        size, flags, padding_size = self._id3v2ext_header
-        crc_size = 4 if flags & 0x08 else 0  # flags are A000, get A
-
-        return size + crc_size + padding_size + ID3V2_EXTENDED_HEADER_SIZE
-
-    @property
-    @memento
-    def id3v2_totalsize(self):
-        "Returns the total size of the id3v2 tag"
-        return self.id3v2_size + self.id3v2ext_size
+    id3v2_totalsize = id3v2_size
 
     @property
     @memento

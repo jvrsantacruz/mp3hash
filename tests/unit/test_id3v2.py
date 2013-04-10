@@ -67,3 +67,6 @@ class TestID3v2Sizes(object):
         tagged = TaggedFile(file)
 
         assert_that(tagged.id3v2_size, is_(SIZE + ID3V2_HEADER_SIZE))
+
+    def test_id3v2_totalsize_is_id3v2_size(self):
+        assert_that(TaggedFile.id3v2_totalsize, is_(TaggedFile.id3v2_size))
