@@ -2,18 +2,32 @@
 """
 Hashes audio files ignoring metadata
 
+The following metadata standards are supported:
+
+    id3v1, id3v1 extended, id3v2.2, id3v2.3 and id3v.24
+
+The main components are the mp3hash function and the TaggedFile class.
+
+* mp3hash will compute the hash on the music (and only the music)
+  of the file in the given path.
+
+* TaggedFile class takes a file-like object supporting
+  seek and negative values for seek and will parse all the sizes
+  for the metadata stored within it.
+
+Technical details:
+~~~~~~~~~~~~~~~~~~
+
 id3v1 is 128 bytes at the end of the file starting with 'TAG'
 id3v1 extended is 227 bytes before regular id3v1 tag starting with 'TAG+'
+
 total size: 128 + (227 if extended)
 
 id3v2 has a 10 bytes header at the begining of the file.
-      byte 5 holds flags. 6th bit indicates extended tag
+      byte 5 holds flags. 4th bit indicates presence of footer in v2.4
       bytes 6-10 are the tag size (not counting header)
-id3v2 extended has a 10 bytes header after the regular id3v2
-      bytes 1-4 are the tag size (not counting header nor padding)
-      bytes 4-6 holds some flags. Leftmost bit indicates CRC presence
-      bytes 6-10 are the tag padding size (extra blank size within tag)
-total size: 10 + tagsize + (10 + etagsize + padding if extended)
+
+total size: header + tagsize + footer (if any)
 
 Based on id3v1 wikipedia docs: http://en.wikipedia.org/wiki/ID3
 Based on id3v2 docs: http://www.id3.org/id3v2.3.0
@@ -53,7 +67,7 @@ def hashfile(file, start, end, alg='sha1', maxbytes=None, blocksize=2 ** 19):
 
     size = end - start                 # total size in bytes to hash
     nblocks = size // blocksize        # n full blocks
-    last_blocksize = size % blocksize   # spare data, not enough for a block
+    last_blocksize = size % blocksize  # spare data, not enough for a block
 
     for i in xrange(nblocks):
         block = file.read(blocksize)
@@ -87,6 +101,11 @@ def parse_7bitint(bytes, bits=7, mask=(1 << 7) - 1):
 
     This is because ID3v2 uses 'sync safe integers'
     which always have its mrb zeroed
+
+    > The tag size is encoded with four bytes where the most
+    significant bit (bit 7) is set to zero in every byte, making a total
+    of 28 bits. The zeroed bits are ignored, so a 257 bytes long tag is
+    represented as $00 00 02 01.
     """
     return sum(
         (bytes[-i - 1] & mask) << shift
@@ -154,16 +173,17 @@ class TaggedFile(object):
         """Returns id3v2 header: (id3, version, revision, flags, size)
 
         id3v2 header is 10 bytes long which starts with ID3:
-            0 I
-            1 D
-            2 3
-            3 Version number
-            4 Version revision
-            5 Flags
-            6 Size 4 7bit bytes big endian
-            7
-            8
-            9
+
+            ID3v2/file identifier      "ID3"
+            ID3v2 version              $03 00
+            ID3v2 flags                %abcd0000
+            ID3v2 size             4 * %0xxxxxxx
+
+        Flags:  The b (6th) bit indicates whether or not the header is
+                followed by an extended header. (mask is 0x40)
+
+        (v2.4)  The d (4th) bit indicates that a footer  is present at the
+                end of the tag. (mask is 0x10)
         """
         self.file.seek(0)
         header = self.file.read(ID3V2_HEADER_SIZE)
@@ -187,6 +207,9 @@ class TaggedFile(object):
     def id3v2_size(self):
         """ Returns the size in bytes of the whole id3v2 tag
 
+        > The ID3v2 tag size is the size of the complete tag after
+        unsychronisation, including padding, excluding the header but not
+        excluding the extended header.
         """
         if not self.has_id3v2:
             return 0
@@ -234,6 +257,5 @@ class TaggedFile(object):
             start, end = self.musiclimits
         except IOError, ioerr:
             logging.error(u'While parsing tags: {}'.format(ioerr))
-            return
         else:
             return hashfile(self.file, start, end, alg, maxbytes)

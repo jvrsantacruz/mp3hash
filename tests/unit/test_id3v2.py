@@ -50,7 +50,7 @@ SIZE = 257
 
 PARSED_HEADER = ('ID3', VERSION, REVISION, FLAGS, SIZE)
 RAW_HEADER = [VERSION, REVISION, FLAGS] + RAW_SIZE
-HEADER = 'ID3' + ''.join(chr(n) for n in RAW_HEADER)
+HEADER = 'ID3' + ''.join(map(chr, RAW_HEADER))
 
 
 class TestID3v2Sizes(object):
