@@ -99,6 +99,7 @@ ID3V1_SIZE = 128
 ID3V1_EXTENDED_SIZE = ID3V1_SIZE + 227
 
 ID3V2_HEADER_SIZE = 10
+ID3V2_FOOTER_SIZE = 10
 ID3V2_EXTENDED_HEADER_SIZE = 10
 
 
@@ -192,6 +193,9 @@ class TaggedFile(object):
 
         id3, ver, rev, flags, size = self._id3v2_header
 
+        # id3v2.4 also includes an optional 10 bytes footer
+        if ver == 4 and flags & 0x10:
+            size += ID3V2_FOOTER_SIZE
 
         return ID3V2_HEADER_SIZE + size
 

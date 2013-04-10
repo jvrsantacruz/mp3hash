@@ -4,7 +4,7 @@ from cStringIO import StringIO
 
 from hamcrest import assert_that, is_
 
-from mp3hash import TaggedFile, ID3V2_HEADER_SIZE
+from mp3hash import TaggedFile, ID3V2_HEADER_SIZE, ID3V2_FOOTER_SIZE
 
 
 NOT_TAGGED = '\n' * ID3V2_HEADER_SIZE
@@ -70,3 +70,27 @@ class TestID3v2Sizes(object):
 
     def test_id3v2_totalsize_is_id3v2_size(self):
         assert_that(TaggedFile.id3v2_totalsize, is_(TaggedFile.id3v2_size))
+
+
+VERSION_v24 = 0x4
+FLAGS_v24 = 0x10  # footer present set
+
+PARSED_HEADER_v24 = ('ID3', VERSION_v24, REVISION, FLAGS_v24, SIZE)
+RAW_HEADER_v24 = [VERSION_v24, REVISION, FLAGS_v24] + RAW_SIZE
+HEADER_v24 = 'ID3' + ''.join(map(chr, RAW_HEADER_v24))
+
+
+class TestID3v24Sizes(object):
+    def test_header_is_read_properly(self):
+        file = StringIO(HEADER_v24)
+
+        tagged = TaggedFile(file)
+
+        assert_that(tagged._id3v2_header, is_(PARSED_HEADER_v24))
+
+    def test_size_adds_footer_size(self):
+        file = StringIO(HEADER_v24)
+
+        tagged = TaggedFile(file)
+
+        assert_that(tagged.id3v2_size, is_(SIZE + ID3V2_HEADER_SIZE + ID3V2_FOOTER_SIZE))
