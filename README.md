@@ -15,17 +15,17 @@ Javier Santacruz (2012-2013)
 Similarly to `sha1sum` or `md5sum`, it takes one or more files and returns the hashes, in this way:
 
 ```shell
-	$ mp3hash *.mp3
-	6611bc5b01a2fc6a6386a871e8c51f86e1f12b33 13_Hotel-California-(Gipsy-Kings).mp3
-	6611bc5b01a2fc6a6386a871e8c51f86e1f12b33 14_Hotel-California-(Gipsy-Kings).mp3
+$ mp3hash *.mp3
+6611bc5b01a2fc6a6386a871e8c51f86e1f12b33 13_Hotel-California-(Gipsy-Kings).mp3
+6611bc5b01a2fc6a6386a871e8c51f86e1f12b33 14_Hotel-California-(Gipsy-Kings).mp3
 ```
 
 It returns the same hash number, even though the tags are different, and so their regular hashes:
 
 ```shell
-	$ sha1sum *.mp3
-	6a1d5f8317add10e205ae30174630b47645fb5b4  13_Hotel-California-(Gipsy-Kings).mp3
-	c28d6976114d31df3366d9935eb0bedd36cf1f0b  14_Hotel-California-(Gipsy-Kings).mp3
+$ sha1sum *.mp3
+6a1d5f8317add10e205ae30174630b47645fb5b4  13_Hotel-California-(Gipsy-Kings).mp3
+c28d6976114d31df3366d9935eb0bedd36cf1f0b  14_Hotel-California-(Gipsy-Kings).mp3
 ```
 
 The hash it's made strictly using the music data in the file, by calculating the tags sizes and
@@ -36,19 +36,19 @@ the Python's `hashlib` module. A complete list of all available hashing algorith
 by calling the program with the `--list-algorithms`.
 
 ```shell
-	$ ./mp3hash --list-algorithms
-	md5
-	sha1
-	sha224
-	sha256
-	sha384
-	sha512
+$ ./mp3hash --list-algorithms
+md5
+sha1
+sha224
+sha256
+sha384
+sha512
 ```
 
 ```shell
-	./mp3hash --algorithm md5
-	ac0fdd89454528d3fbdb19942a2e6653 13_Hotel-California-(Gipsy-Kings).mp3
-	ac0fdd89454528d3fbdb19942a2e6653 14_Hotel-California-(Gipsy-Kings).mp3
+./mp3hash --algorithm md5
+ac0fdd89454528d3fbdb19942a2e6653 13_Hotel-California-(Gipsy-Kings).mp3
+ac0fdd89454528d3fbdb19942a2e6653 14_Hotel-California-(Gipsy-Kings).mp3
 ```
 
 # Installation
@@ -68,11 +68,11 @@ The main components are the mp3hash function and the TaggedFile class.
   of the file in the given path.
 
 
-        ```python
-        >> from mp3hash import mp3hash
-        >> mp3hash('/path/to/song.mp3')
-        Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
-        ```
+```python
+>> from mp3hash import mp3hash
+>> mp3hash('/path/to/song.mp3')
+Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
+```
 
 
 - TaggedFile class takes a file-like object supporting
@@ -80,12 +80,12 @@ The main components are the mp3hash function and the TaggedFile class.
   for the metadata stored within it.
 
 
-        ```python
-        >> from mp3hash import TaggedFile
-        >> with open('/path/to/song.mp3') as file:
-            TaggedFile(file).has_id3v2
-        Out: True
-        ```
+```python
+>> from mp3hash import TaggedFile
+>> with open('/path/to/song.mp3') as file:
+    TaggedFile(file).has_id3v2
+Out: True
+```
 
 
 # Developers, developers, developers!
@@ -94,17 +94,23 @@ The main components are the mp3hash function and the TaggedFile class.
 
 You're adviced to use a virtualenv
 
-    $ virtualenv --python python2 --distribute env
-    $ . env/bin/activate
+```bash
+$ virtualenv --python python2 --distribute env
+$ . env/bin/activate
+```
 
 Once into the virtualenv, install the package and the testing dependences.
 
-    $(env) python setup.py develop
-    $(env) pip install -r dev-reqs.txt
+```bash
+$(env) python setup.py develop
+$(env) pip install -r dev-reqs.txt
+```
 
 In order to perform the testing, run 'nosetests' from the root of the project (same dir of setup.py).
 
-    $ nosetests
+```bash
+$ nosetests
+```
 
 ## About id3v1
 
