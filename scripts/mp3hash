@@ -52,7 +52,9 @@ def main():
                   " regular file".format(arg))
             continue
 
-        print mp3hash(path, alg=opts.algorithm, maxbytes=opts.maxbytes),  # No \n
+        hasher = hashlib.new(opts.algorithm)
+
+        print mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher),  # No \n
         print os.path.basename(path) if not opts.hash else ''
 
 

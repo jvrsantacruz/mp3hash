@@ -40,7 +40,7 @@ import hashlib
 import logging
 
 
-def mp3hash(path, alg='sha1', maxbytes=None):
+def mp3hash(path, maxbytes=None, hasher=None):
     """Returns the hash of the sound contents of a ID3 tagged file
     Convenience function which wraps TaggedFile
     Returns None on failure
@@ -48,11 +48,14 @@ def mp3hash(path, alg='sha1', maxbytes=None):
     if maxbytes is not None and maxbytes <= 0:
         raise ValueError(u'maxbytes must be a positive integer')
 
+    if hasher is None:
+        hasher = hashlib.new('sha1')
+
     with open(path, 'rb') as ofile:
-        return TaggedFile(ofile).hash(maxbytes=maxbytes)
+        return TaggedFile(ofile).hash(maxbytes=maxbytes, hasher=hasher)
 
 
-def hashfile(file, start, end, alg='sha1', maxbytes=None, blocksize=2 ** 19):
+def hashfile(file, start, end, hasher, maxbytes=None, blocksize=2 ** 19):
     """Hashes an open file data starting from byte 'start' to the byte 'end'
     max is the maximun amount of data to hash, in bytes.
     The hexdigest string is calculated considering only bytes between start,end
@@ -60,8 +63,6 @@ def hashfile(file, start, end, alg='sha1', maxbytes=None, blocksize=2 ** 19):
     """
     if maxbytes > 0:
         end = min(end, start + maxbytes)
-
-    hasher = hashlib.new(alg)
 
     file.seek(start)
 
@@ -249,7 +250,7 @@ class TaggedFile(object):
         "Returns the total count of music data bytes in the file"
         return self.filesize - self.id3v1_totalsize - self.id3v2_totalsize
 
-    def hash(self, alg='sha1', maxbytes=None):
+    def hash(self, hasher, maxbytes=None):
         """Returns the hash for a certain audio file ignoring tags
         Non cached function. Calculates the hash each time it's called
         """
@@ -258,4 +259,4 @@ class TaggedFile(object):
         except IOError, ioerr:
             logging.error(u'While parsing tags: {}'.format(ioerr))
         else:
-            return hashfile(self.file, start, end, alg, maxbytes)
+            return hashfile(self.file, start, end, hasher, maxbytes)

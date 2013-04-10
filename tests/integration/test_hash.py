@@ -45,8 +45,8 @@ class HashOperations(object):
             yield self.check_algs, alg
 
     def check_algs(self, alg):
-        hash1 = mp3hash(SONG1_PATH, alg=alg)
-        hash2 = mp3hash(SONG2_PATH, alg=alg)
+        hash1 = mp3hash(SONG1_PATH, hasher=hashlib.new(alg))
+        hash2 = mp3hash(SONG2_PATH, hasher=hashlib.new(alg))
         assert_that(hash1, is_(equal_to(hash2)))
 
     def test_maxbytes_all(self):
