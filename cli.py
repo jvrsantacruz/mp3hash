@@ -17,9 +17,9 @@ ALGORITHMS = getattr(
 )
 
 
-def error(msg):
+def error(msg, code=1):
     print(msg)
-    sys.exit(1)
+    sys.exit(code)
 
 
 def list_algorithms():
@@ -31,7 +31,7 @@ def main():
 
     if not args and not opts.list_algorithms:
         parser.print_help()
-        error(u"\nInsufficient arguments")
+        error(u"\nInsufficient arguments", code=2)
 
     if opts.maxbytes is not None and opts.maxbytes <= 0:
         parser.print_help()
@@ -40,11 +40,11 @@ def main():
 
     if opts.list_algorithms:
         list_algorithms()
-        sys.exit(0)
+        sys.exit()
 
     if opts.algorithm not in ALGORITHMS:
         error(u"Unkown '{}' algorithm. Available options are: {}"
-              .format(opts.algorithm, ", ".join(ALGORITHMS)))
+              .format(opts.algorithm, ", ".join(ALGORITHMS)), code=2)
 
     for arg in args:
         path = os.path.realpath(arg)
