@@ -3,7 +3,6 @@
 
 import os
 import sys
-import logging
 import hashlib
 from optparse import OptionParser
 
@@ -17,13 +16,10 @@ ALGORITHMS = getattr(
     ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512')
 )
 
-_LOGGING_FMT_ = '%(asctime)s %(levelname)-8s %(message)s'
 
-
-def error(msg, is_exit=True):
-    logging.error(msg)
-    if is_exit:
-        sys.exit()
+def error(msg):
+    print(msg)
+    sys.exit(1)
 
 
 def list_algorithms():
@@ -83,19 +79,11 @@ def parse_arguments():
     parser.add_option("-o", "--output", default=False,
                       help="Redirect output to a file")
 
-    parser.add_option("-v", "--verbose", action="count", default=0)
-
     parser.set_usage("Usage: [options] FILE [FILE ..]")
 
     (opts, args) = parser.parse_args()
 
     return opts, args, parser
-
-
-def configure_logging(verbose):
-    logging_levels = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
-    level = logging_levels[verbose if verbose < 3 else 2]
-    logging.basicConfig(level=level, format=_LOGGING_FMT_)
 
 
 def configure_output(output):
