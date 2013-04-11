@@ -1,3 +1,4 @@
 nose
-mutagen
+doublex
 pyHamcrest
+mutagen
