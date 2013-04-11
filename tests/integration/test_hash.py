@@ -17,6 +17,8 @@ SONG2_PATH = 'tests/file2.mp3'
 
 SONG_SIZE = os.path.getsize(SONG1_PATH)
 
+ALGORITHMS = ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512')
+
 
 class IdenticalFiles(object):
     @classmethod
@@ -41,7 +43,7 @@ class HashOperations(object):
 
     def test_algs(self):
         "Test generator for every algorithm"
-        for alg in hashlib.algorithms:
+        for alg in ALGORITHMS:
             yield self.check_algs, alg
 
     def check_algs(self, alg):

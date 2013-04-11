@@ -8,6 +8,8 @@ The following metadata standards are supported:
 
     id3v1, id3v1 extended, id3v2.2, id3v2.3 and id3v.24
 
+Known to work with: `python2.6`, `python2.7` and `python3.3`
+
 Javier Santacruz (2012-2013)
 
 # Command line usage

@@ -10,6 +10,13 @@ from optparse import OptionParser
 from mp3hash import mp3hash
 
 
+# hashlib.algorithms was included in python 2.7
+ALGORITHMS = getattr(
+    hashlib,
+    'algorithms',
+    ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512')
+)
+
 _LOGGING_FMT_ = '%(asctime)s %(levelname)-8s %(message)s'
 
 
@@ -20,8 +27,7 @@ def error(msg, is_exit=True):
 
 
 def list_algorithms():
-    for alg in hashlib.algorithms:
-        print alg
+    print(u'\n'.join(ALGORITHMS))
 
 
 def main():
@@ -41,9 +47,9 @@ def main():
         list_algorithms()
         sys.exit(0)
 
-    if opts.algorithm not in hashlib.algorithms:
+    if opts.algorithm not in ALGORITHMS:
         error(u"Unkown '{}' algorithm. Available options are: {}"
-              .format(opts.algorithm, ", ".join(hashlib.algorithms)))
+              .format(opts.algorithm, ", ".join(ALGORITHMS)))
 
     for arg in args:
         path = os.path.realpath(arg)
