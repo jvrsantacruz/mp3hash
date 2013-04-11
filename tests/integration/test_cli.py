@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
 import sys
+import errno
 
 try:
     from cStringIO import StringIO
@@ -45,10 +46,10 @@ class TestCLI(object):
         assert_that(self.stdout.getvalue(),
                     contains_string(u'Insufficient arguments'))
 
-    def test_main_with_no_arguments_exits_with_code_2(self):
+    def test_main_with_no_arguments_exits_with_invalid_argument(self):
         main()
 
-        assert_that(self.exit, called().with_args(2))
+        assert_that(self.exit, called().with_args(errno.EINVAL))
 
     def test_main_with_negative_maxbytes_value_stdouts_error(self):
         self.argv.extend(['--maxbytes', '-5'])
@@ -58,12 +59,12 @@ class TestCLI(object):
         assert_that(self.stdout.getvalue(),
                     contains_string(u'Invalid value for --maxbytes'))
 
-    def test_main_with_negative_maxbytes_value_exits_with_code_1(self):
+    def test_main_with_negative_maxbytes_exits_with_invalid_argument(self):
         self.argv.extend(['--maxbytes', '-5'])
 
         main()
 
-        assert_that(self.exit, called().with_args(1))
+        assert_that(self.exit, called().with_args(errno.EINVAL))
 
     def test_main_with_0_maxbytes_value_stdouts_error(self):
         self.argv.extend(['--maxbytes', '0'])
@@ -73,9 +74,9 @@ class TestCLI(object):
         assert_that(self.stdout.getvalue(),
                     contains_string(u'Invalid value for --maxbytes'))
 
-    def test_main_with_0_maxbytes_value_exits_with_code_1(self):
+    def test_main_with_0_maxbytes_exits_with_invalid_argument(self):
         self.argv.extend(['--maxbytes', '0'])
 
         main()
 
-        assert_that(self.exit, called().with_args(1))
+        assert_that(self.exit, called().with_args(errno.EINVAL))

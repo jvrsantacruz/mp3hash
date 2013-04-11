@@ -3,6 +3,7 @@
 
 import os
 import sys
+import errno
 import hashlib
 from optparse import OptionParser
 
@@ -31,12 +32,13 @@ def main():
 
     if not args and not opts.list_algorithms:
         parser.print_help()
-        error(u"\nInsufficient arguments", code=2)
+        error(u"\nInsufficient arguments", code=errno.EINVAL)
 
     if opts.maxbytes is not None and opts.maxbytes <= 0:
         parser.print_help()
         print()
-        error(u"\nInvalid value for --maxbytes it should be a positive integer")
+        error(u"\nInvalid value for --maxbytes it should be a positive integer",
+              code=errno.EINVAL)
 
     if opts.list_algorithms:
         list_algorithms()
@@ -44,13 +46,14 @@ def main():
 
     if opts.algorithm not in ALGORITHMS:
         error(u"Unkown '{}' algorithm. Available options are: {}"
-              .format(opts.algorithm, ", ".join(ALGORITHMS)), code=2)
+              .format(opts.algorithm, ", ".join(ALGORITHMS)),
+              code=errno.EINVAL)
 
     for arg in args:
         path = os.path.realpath(arg)
         if not os.path.isfile(path):
             error(u"File at '{}' does not exist or it is not a regular file"
-                  .format(arg))
+                  .format(arg), code=errno.ENOENT)
             continue
 
         hasher = hashlib.new(opts.algorithm)
@@ -94,7 +97,7 @@ def configure_output(output):
             sys.stdout = open(output, 'w')
         except IOError as err:
             sys.stdout = stdout
-            error(u"Couldn't open {}: {}".format(output, err))
+            error(u"Couldn't open {}: {}".format(output, err), errno.ENOENT)
 
 
 if __name__ == "__main__":
