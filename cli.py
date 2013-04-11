@@ -31,13 +31,12 @@ def main():
 
     if not args and not opts.list_algorithms:
         parser.print_help()
-        print
-        error(u"Insufficient arguments")
+        error(u"\nInsufficient arguments")
 
     if opts.maxbytes is not None and opts.maxbytes <= 0:
         parser.print_help()
-        print
-        error(u"Invalid value for --maxbytes it should be a positive integer")
+        print()
+        error(u"\nInvalid value for --maxbytes it should be a positive integer")
 
     if opts.list_algorithms:
         list_algorithms()
@@ -56,8 +55,10 @@ def main():
 
         hasher = hashlib.new(opts.algorithm)
 
-        print mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher),  # No \n
-        print os.path.basename(path) if not opts.hash else ''
+        print(u'{hash} {filename}'.format(
+            hash=mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher),
+            filename=os.path.basename(path) if not opts.hash else ''
+        ))
 
 
 def parse_arguments():
@@ -91,7 +92,7 @@ def configure_output(output):
         stdout = sys.stdout
         try:
             sys.stdout = open(output, 'w')
-        except IOError, err:
+        except IOError as err:
             sys.stdout = stdout
             error(u"Couldn't open {}: {}".format(output, err))
 

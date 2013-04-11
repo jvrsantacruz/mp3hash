@@ -38,6 +38,7 @@ Javier Santacruz 2012-06-03
 import struct
 import hashlib
 import logging
+from itertools import repeat
 
 
 def mp3hash(path, maxbytes=None, hasher=None):
@@ -61,7 +62,7 @@ def hashfile(file, start, end, hasher, maxbytes=None, blocksize=2 ** 19):
     The hexdigest string is calculated considering only bytes between start,end
     default block size is 512 KiB
     """
-    if maxbytes > 0:
+    if maxbytes is not None and maxbytes > 0:
         end = min(end, start + maxbytes)
 
     file.seek(start)
@@ -70,8 +71,8 @@ def hashfile(file, start, end, hasher, maxbytes=None, blocksize=2 ** 19):
     nblocks = size // blocksize        # n full blocks
     last_blocksize = size % blocksize  # spare data, not enough for a block
 
-    for i in xrange(nblocks):
-        block = file.read(blocksize)
+    for read in repeat(file.read, nblocks):
+        block = read(blocksize)
         hasher.update(block)
 
     if last_blocksize:
@@ -83,7 +84,7 @@ def hashfile(file, start, end, hasher, maxbytes=None, blocksize=2 ** 19):
 
 def memento(function):
     def wrapper(self):
-        attr_name = '_' + function.func_name + '_value'
+        attr_name = '_' + function.__name__ + '_value'
         if not hasattr(self, attr_name):
             setattr(self, attr_name, function(self))
         return getattr(self, attr_name)
@@ -111,7 +112,7 @@ def parse_7bitint(bytes, bits=7, mask=(1 << 7) - 1):
     return sum(
         (bytes[-i - 1] & mask) << shift
         for i, shift in
-        enumerate(xrange(0, len(bytes) * bits, bits))
+        enumerate(range(0, len(bytes) * bits, bits))
     )
 
 
@@ -190,7 +191,10 @@ class TaggedFile(object):
 
         id3, v, r, flags, size = struct.unpack('>3sBBB4s', header)
 
-        return id3, v, r, flags, parse_7bitint(map(ord, size))
+        if isinstance(size, str):  # python3's unpack returns bytes
+            size = [ord(i) for i in size]
+
+        return id3, v, r, flags, parse_7bitint(size)
 
     @property
     @memento
@@ -253,7 +257,7 @@ class TaggedFile(object):
         """Returns the hash for a certain audio file ignoring tags """
         try:
             start, end = self.musiclimits
-        except IOError, ioerr:
+        except IOError as ioerr:
             logging.error(u'While parsing tags: {}'.format(ioerr))
         else:
             return hashfile(self.file, start, end, hasher, maxbytes)
