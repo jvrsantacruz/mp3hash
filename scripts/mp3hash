@@ -52,8 +52,8 @@ def main():
     for arg in args:
         path = os.path.realpath(arg)
         if not os.path.isfile(path):
-            error(u"File at '{}' does not exist or it is not a regular file"
-                  .format(arg), code=errno.ENOENT)
+            print(u"File at '{}' does not exist or it is not a regular file"
+                  .format(arg))
             continue
 
         hasher = hashlib.new(opts.algorithm)

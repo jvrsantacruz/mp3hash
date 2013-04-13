@@ -25,9 +25,7 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     platforms=['Any'],
-    entry_points={
-        'console_scripts': [
-            'mp3hash = cli:main'
-        ]
-    }
+    scripts=[
+        'scripts/mp3hash'
+    ]
 )
