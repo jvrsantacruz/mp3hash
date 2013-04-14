@@ -258,6 +258,6 @@ class TaggedFile(object):
         try:
             start, end = self.musiclimits
         except IOError as ioerr:
-            logging.error(u'While parsing tags: {}'.format(ioerr))
+            logging.error(u'While parsing tags: {0}'.format(ioerr))
         else:
             return hashfile(self.file, start, end, hasher, maxbytes)
