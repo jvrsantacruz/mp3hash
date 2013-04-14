@@ -7,7 +7,7 @@ import errno
 import hashlib
 from optparse import OptionParser
 
-from mp3hash import mp3hash
+import mp3hash
 
 
 # hashlib.algorithms was included in python 2.7
@@ -56,7 +56,7 @@ def main():
             continue
 
         hasher = hashlib.new(opts.algorithm)
-        hash = mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher)
+        hash = mp3hash.mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher)
 
         # display file hash or just the hash
         filename = u'' if opts.hash else u' ' + os.path.basename(path)
