@@ -19,10 +19,13 @@ NON_EXISTENT_FILE = 'nonexistent.txt'
 
 
 def call(*args):
-    try:
-        return 0, subprocess.check_output(args, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as command:
-        return command.returncode, command.output
+    process = subprocess.Popen(
+        args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    stdout, unused_stderr = process.communicate()
+    retcode = process.wait()
+
+    return retcode, stdout
 
 
 class TestParameterValidation(object):
