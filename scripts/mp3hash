@@ -36,7 +36,6 @@ def main():
 
     if opts.maxbytes is not None and opts.maxbytes <= 0:
         parser.print_help()
-        print()
         error(u"\nInvalid value for --maxbytes it should be a positive integer",
               code=errno.EINVAL)
 
@@ -57,11 +56,12 @@ def main():
             continue
 
         hasher = hashlib.new(opts.algorithm)
+        hash = mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher)
 
-        print(u'{hash} {filename}'.format(
-            hash=mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher),
-            filename=os.path.basename(path) if not opts.hash else ''
-        ))
+        # display file hash or just the hash
+        filename = u'' if opts.hash else u' ' + os.path.basename(path)
+
+        print(hash + filename)
 
 
 def parse_arguments():
