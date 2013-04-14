@@ -15,8 +15,7 @@ setup(
     author='Javier Santacruz',
     author_email='javier.santacruz.lc@gmail.com',
     url='http://github.com/jvrsantacruz/mp3hash',
-    packages=find_packages(),
-    install_requires=[],
+    py_modules=['mp3hash'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
