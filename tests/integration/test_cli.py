@@ -76,6 +76,12 @@ class TestCLI(object):
             contains_string('algorithm')
         ))
 
+    def test_non_existent_algorithm_outputs_one_line_error(self):
+        retcode, output = call(
+            SCRIPT, '--algorithm', NON_EXISTENT_ALGORITHM, '*')
+
+        assert_that(output.count('\n'), is_(1))
+
     def test_existent_file_returns_ok(self):
         retcode, output = call(SCRIPT, SONG1_PATH)
 
