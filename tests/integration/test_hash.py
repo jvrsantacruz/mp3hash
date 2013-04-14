@@ -11,9 +11,8 @@ from nose.tools import raises
 
 from mp3hash import mp3hash
 
+from tests.integration import SONG1_PATH, SONG2_PATH
 
-SONG1_PATH = 'tests/file1.mp3'
-SONG2_PATH = 'tests/file2.mp3'
 
 SONG_SIZE = os.path.getsize(SONG1_PATH)
 

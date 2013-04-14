@@ -5,6 +5,8 @@ import subprocess
 
 from hamcrest import assert_that, contains_string, is_, all_of
 
+from tests.integration import SONG1_PATH, SONG2_PATH
+
 
 OK = 0
 SCRIPT = 'mp3hash'
@@ -73,3 +75,13 @@ class TestCLI(object):
             contains_string('Unknown'),
             contains_string('algorithm')
         ))
+
+    def test_existent_file_returns_ok(self):
+        retcode, output = call(SCRIPT, SONG1_PATH)
+
+        assert_that(retcode, is_(OK))
+
+    def test_several_existent_files_returns_ok(self):
+        retcode, output = call(SCRIPT, SONG1_PATH, SONG2_PATH)
+
+        assert_that(retcode, is_(OK))
