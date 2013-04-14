@@ -45,7 +45,7 @@ def main():
         sys.exit()
 
     if opts.algorithm not in ALGORITHMS:
-        error(u"Unkown '{}' algorithm. Available options are: {}"
+        error(u"Unknown '{}' algorithm. Available options are: {}"
               .format(opts.algorithm, ", ".join(ALGORITHMS)),
               code=errno.EINVAL)
 
