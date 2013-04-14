@@ -29,6 +29,9 @@ def list_algorithms():
 def main():
     opts, args, parser = parse_arguments()
 
+    if opts.output:
+        redirect_output(opts.output)
+
     if not args and not opts.list_algorithms:
         parser.print_help()
         error(u"\nInsufficient arguments")
@@ -90,14 +93,14 @@ def parse_arguments():
     return opts, args, parser
 
 
-def configure_output(output):
-    if output:
-        stdout = sys.stdout
-        try:
-            sys.stdout = open(output, 'w')
-        except IOError as err:
-            sys.stdout = stdout
-            error(u"Couldn't open {}: {}".format(output, err), errno.ENOENT)
+def redirect_output(path):
+    stdout = sys.stdout
+    try:
+        sys.stdout = open(path, 'w')
+    except IOError as err:
+        sys.stdout = stdout
+        error(u"Couldn't open {}: {}".format(path, err))
+        sys.exit(errno.ENOENT)
 
 
 if __name__ == "__main__":
