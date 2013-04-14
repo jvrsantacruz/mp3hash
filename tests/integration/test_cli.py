@@ -3,50 +3,73 @@
 import errno
 import subprocess
 
-from hamcrest import assert_that, contains_string, is_
+from hamcrest import assert_that, contains_string, is_, all_of
 
 
+OK = 0
 SCRIPT = 'mp3hash'
+NON_EXISTENT_PATH = '/non/existent/path'
+NON_EXISTENT_ALGORITHM = 'I am not a hash'
 
 
 def call(*args):
-    return subprocess.call([SCRIPT] + list(args))
-
-
-def check_output(*args):
     try:
-        return subprocess.check_output([SCRIPT] + list(args))
-    except subprocess.CalledProcessError as output:
-        return output.output
+        return 0, subprocess.check_output(args, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as command:
+        return command.returncode, command.output
 
 
 class TestCLI(object):
-    def test_main_with_no_arguments_stdouts_error(self):
-        output = check_output()
+    def test_no_arguments_stdouts_error(self):
+        retcode, output = call(SCRIPT)
 
         assert_that(output, contains_string(u'Insufficient arguments'))
 
-    def test_main_with_no_arguments_exits_with_invalid_argument(self):
-        retcode = call()
+    def test_no_arguments_exits_with_invalid_argument(self):
+        retcode, output = call(SCRIPT)
 
         assert_that(retcode, is_(errno.EINVAL))
 
-    def test_main_with_negative_maxbytes_value_stdouts_error(self):
-        output = check_output('--maxbytes', '-5', '*')
+    def test_negative_maxbytes_value_stdouts_error(self):
+        retcode, output = call(SCRIPT, '--maxbytes', '-5', '*')
 
         assert_that(output, contains_string(u'Invalid value for --maxbytes'))
 
-    def test_main_with_negative_maxbytes_exits_with_invalid_argument(self):
-        retcode = call('--maxbytes', '-5', '*')
+    def test_negative_maxbytes_exits_with_invalid_argument(self):
+        retcode, output = call(SCRIPT, '--maxbytes', '-5', '*')
 
         assert_that(retcode, is_(errno.EINVAL))
 
-    def test_main_with_0_maxbytes_value_stdouts_error(self):
-        output = check_output('--maxbytes', '0', '*')
+    def test_maxbytes_value_stdouts_error(self):
+        retcode, output = call(SCRIPT, '--maxbytes', '0', '*')
 
         assert_that(output, contains_string(u'Invalid value for --maxbytes'))
 
-    def test_main_with_0_maxbytes_exits_with_invalid_argument(self):
-        retcode = call('--maxbytes', '0', '*')
+    def test_maxbytes_exits_with_invalid_argument(self):
+        retcode, output = call(SCRIPT, '--maxbytes', '0', '*')
 
         assert_that(retcode, is_(errno.EINVAL))
+
+    def test_list_algorithms_returns_ok(self):
+        retcode, output = call(SCRIPT, '--list-algorithms')
+
+        assert_that(retcode, is_(OK))
+
+    def test_non_existent_path_returns_ok(self):
+        retcode, output = call(SCRIPT, NON_EXISTENT_PATH)
+
+        assert_that(retcode, is_(OK))
+
+    def test_non_existent_path_outputs_error(self):
+        retcode, output = call(SCRIPT, NON_EXISTENT_PATH)
+
+        assert_that(output, contains_string('does not exist'))
+
+    def test_non_existent_algorithm_outputs_error(self):
+        retcode, output = call(
+            SCRIPT, '--algorithm', NON_EXISTENT_ALGORITHM, '*')
+
+        assert_that(output, all_of(
+            contains_string('Unknown'),
+            contains_string('algorithm')
+        ))
