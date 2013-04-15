@@ -2,14 +2,14 @@
 
 import os
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 here = os.path.dirname(os.path.realpath(__file__))
 readme = os.path.join(here, 'README.rst')
 
 setup(
     name='mp3hash',
-    version='0.0.6',
+    version='0.1',
     description='Music file hasher',
     long_description=open(readme).read(),
     author='Javier Santacruz',
