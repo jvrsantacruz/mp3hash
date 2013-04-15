@@ -76,11 +76,9 @@ The main components are the mp3hash function and the TaggedFile class.
 Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
 ```
 
-
 - TaggedFile class takes a file-like object supporting
   seek and negative values for seek and will parse all the sizes
   for the metadata stored within it.
-
 
 ```python
 >> from mp3hash import TaggedFile
@@ -89,6 +87,31 @@ Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
 Out: True
 ```
 
+- Bring your own hash/checksum!
+
+Any object matching the `update` and `hexdigest` methods, follows the hasher protocol and thereby can be used along with the function.
+
+If your method does not match this protocol, you can always adapt it. As an example, it should be easy enough to wrap the `adler32` checksum algorithm to make it work with mp3hash.
+
+```python
+>> import zlib
+>> import mp3hash
+
+>> class Adler32Hasher(object):
+      def __init__(self):
+          self.value = None
+
+      def update(self, data):
+          self.value = zlib.adler32(
+              data, *([self.value] if self.value is not None else [])
+          ) & 0xffffffff
+
+      def hexdigest(self):
+          return hex(self.value)
+
+>> mp3hash.mp3hash('/path/to/song.mp3', hasher=Adler32Hasher())
+Out: '0x40b1519d'
+```
 
 # Developers, developers, developers!
 
