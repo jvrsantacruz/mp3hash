@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
 import os
+import zlib
 import shutil
 import hashlib
 
@@ -58,6 +59,7 @@ class HashOperations(object):
     def check_num(self, maxbytes):
         hash1 = mp3hash(SONG1_PATH, maxbytes=maxbytes)
         hash2 = mp3hash(SONG2_PATH, maxbytes=maxbytes)
+
         assert_that(hash1, is_(equal_to(hash2)))
 
     @raises(ValueError)
@@ -67,6 +69,25 @@ class HashOperations(object):
     @raises(ValueError)
     def test_maxbytes_0(self):
         mp3hash(SONG1_PATH, maxbytes=-15)
+
+    def test_hasher_protocol(self):
+        class Adler32Hasher(object):
+            def __init__(self):
+                self.value = None
+
+            def update(self, data):
+                self.value = zlib.adler32(
+                    data, *([self.value] if self.value is not None else [])
+                ) & 0xffffffff
+
+            def hexdigest(self):
+                return hex(self.value)
+
+        hasher = Adler32Hasher
+        hash1 = mp3hash(SONG1_PATH, hasher=hasher())
+        hash2 = mp3hash(SONG2_PATH, hasher=hasher())
+
+        assert_that(hash1, is_(equal_to(hash2)))
 
 
 class TestHashIdenticFile(IdenticalFiles, HashOperations):
