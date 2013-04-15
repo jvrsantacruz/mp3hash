@@ -37,7 +37,6 @@ Javier Santacruz 2012-06-03
 
 import struct
 import hashlib
-import logging
 from itertools import repeat
 
 
@@ -255,9 +254,5 @@ class TaggedFile(object):
 
     def hash(self, hasher, maxbytes=None):
         """Returns the hash for a certain audio file ignoring tags """
-        try:
-            start, end = self.musiclimits
-        except IOError as ioerr:
-            logging.error(u'While parsing tags: {0}'.format(ioerr))
-        else:
-            return hashfile(self.file, start, end, hasher, maxbytes)
+        start, end = self.musiclimits
+        return hashfile(self.file, start, end, hasher, maxbytes)
