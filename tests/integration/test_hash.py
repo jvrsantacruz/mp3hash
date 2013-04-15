@@ -2,10 +2,7 @@
 
 import os
 import zlib
-import shutil
 import hashlib
-
-import mutagen
 
 from hamcrest import *
 from nose.tools import raises
@@ -20,22 +17,9 @@ SONG_SIZE = os.path.getsize(SONG1_PATH)
 ALGORITHMS = ('md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512')
 
 
-class IdenticalFiles(object):
-    @classmethod
-    def setup_class(cls):
-        shutil.copy(SONG1_PATH, SONG2_PATH)
+class TestHashOperations(object):
+    """ SONG2 is the same file as SONG1 but with all tag data stripped.  """
 
-
-class TestSameDataButNoTags(IdenticalFiles):
-    @classmethod
-    def setup_class(cls):
-        shutil.copy(SONG1_PATH, SONG2_PATH)
-        f = mutagen.File(SONG2_PATH)
-        f.clear()
-        f.save()
-
-
-class HashOperations(object):
     def test_mp3hash(self):
         hash1 = mp3hash(SONG1_PATH)
         hash2 = mp3hash(SONG2_PATH)
@@ -88,11 +72,3 @@ class HashOperations(object):
         hash2 = mp3hash(SONG2_PATH, hasher=hasher())
 
         assert_that(hash1, is_(equal_to(hash2)))
-
-
-class TestHashIdenticFile(IdenticalFiles, HashOperations):
-    pass
-
-
-class TestHashSameDataButNoTags(TestSameDataButNoTags, HashOperations):
-    pass
