@@ -234,6 +234,9 @@ class TaggedFile(object):
     @memento
     def endbyte(self):
         "Returns the last byte position of music data in the file"
+        if not self.has_id3v1:
+            return self.filesize
+
         self.file.seek(-self.id3v1_totalsize, 2)
         return self.file.tell()
 
