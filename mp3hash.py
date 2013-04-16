@@ -190,10 +190,7 @@ class TaggedFile(object):
 
         id3, v, r, flags, size = struct.unpack('>3sBBB4s', header)
 
-        if isinstance(size, str):  # python3's unpack returns bytes
-            size = [ord(i) for i in size]
-
-        return id3, v, r, flags, parse_7bitint(size)
+        return id3, v, r, flags, parse_7bitint(map(ord, size))
 
     @property
     @memento
