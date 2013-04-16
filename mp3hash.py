@@ -239,9 +239,9 @@ class TaggedFile(object):
 
     @property
     @memento
-    def musiclimits(self):
+    def music_limits(self):
         "Returns the (start, end) for music in the file"
-        return (self.startbyte, self.endbyte)
+        return self.startbyte, self.endbyte
 
     @property
     @memento
@@ -251,5 +251,5 @@ class TaggedFile(object):
 
     def hash(self, hasher, maxbytes=None):
         """Returns the hash for a certain audio file ignoring tags """
-        start, end = self.musiclimits
+        start, end = self.music_limits
         return hashfile(self.file, start, end, hasher, maxbytes)
