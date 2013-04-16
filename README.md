@@ -95,8 +95,21 @@ parse all the sizes and offsets for the meta-data tags stored within it.
 ```python
 >> from mp3hash import TaggedFile
 >> with open('/path/to/song.mp3') as file:
+    TaggedFile(file).has_id3v1
+Out: True
+
     TaggedFile(file).has_id3v2
 Out: True
+
+    TaggedFile(file).filesize
+Out: 5315937
+
+    TaggedFile(file).music_size
+Out: 5311714
+
+    TaggedFile(file).startbyte
+Out: 4096
+
     TaggedFile(file).music_limits
 Out: (4096, 5315810)
 ```
@@ -104,11 +117,21 @@ Out: (4096, 5315810)
 ## Bring your own hash/checksum!
 
 Any object matching the `update` and `hexdigest` methods, follows the hasher protocol and thereby
-can be used along with the function.
+can be used along with the `mp3hash` function.
 
-If your method happens to do not match this protocol, you can always adapt it. As an example and
-demonstration, we could carry out a little experiment. It should be easy enough to wrap the very
-fast `adler32` checksum algorithm to make it work with `mp3hash`.
+If your method happens to not to match this protocol, you can always adapt it. We could carry out a
+little experiment. It should be easy enough for us to wrap the much faster `adler32` checksum
+algorithm to make it work with `mp3hash`.
+
+The algorithm is available in the python standard module `zlib`, as `zlib.adler32`.
+
+From the documentation:
+
+> zlib.adler32(data[, value])
+>
+> Computes a Adler-32 checksum of data. [..] If value is present, it is used as the starting value
+	of the checksum; otherwise, a fixed default value is used. This allows computing a running
+	checksum over the concatenation of several inputs. [..]
 
 ```python
 >> import zlib
@@ -119,10 +142,10 @@ fast `adler32` checksum algorithm to make it work with `mp3hash`.
           self.value = None
 
       def update(self, data):
-      	  # First call: adler32(data), following calls: adler32(data, value)
-          self.value = zlib.adler32(
-              data, *([self.value] if self.value is not None else [])
-          ) & 0xffffffff  # crop it down to 32bit, cross-version
+      	  if self.value is None:  # first call
+      	      self.value = zlib.adler32(data)
+      	  else:
+      	      self.value = zlib.adler32(data, self.value)
 
       def hexdigest(self):
           return hex(self.value)
@@ -163,21 +186,22 @@ $ nosetests
 
 total size: 128 + (227 if extended)
 
-## About id3v2
-
-id3v2 has a 10 bytes header at the begining of the file.
-      byte 5 holds flags. 4th bit indicates presence of footer in v2.4
-      bytes 6-10 are the tag size (not counting header)
-
-total size: header + tagsize + footer (if any)
-
 Based on id3v1 wikipedia docs:
 
 - http://en.wikipedia.org/wiki/ID3
 
 
+## About id3v2
+
+- id3v2 has a 10 bytes header at the begining of the file.
+	- byte 5 holds flags. 4th bit indicates presence of footer in v2.4
+   	- bytes 6-10 are the tag size (not counting header)
+
+
+total size: header + tagsize + footer (if any)
+
 Based on id3v2 docs:
 
 - http://id3.org/id3v2-00
-- http://www.id3.org/id3v2.3.0
+- http://id3.org/id3v2.3.0
 - http://id3.org/id3v2.4.0-structure
