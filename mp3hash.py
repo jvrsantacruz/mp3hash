@@ -37,7 +37,8 @@ Javier Santacruz 2012-06-03
 
 import struct
 import hashlib
-from itertools import repeat
+from collections import deque
+from itertools import repeat, chain
 
 
 def mp3hash(path, maxbytes=None, hasher=None):
@@ -57,28 +58,33 @@ def mp3hash(path, maxbytes=None, hasher=None):
 
 def hashfile(file, start, end, hasher, maxbytes=None, blocksize=2 ** 19):
     """Hashes an open file data starting from byte 'start' to the byte 'end'
-    max is the maximun amount of data to hash, in bytes.
+    max is the maximum amount of data to hash, in bytes.
     The hexdigest string is calculated considering only bytes between start,end
     default block size is 512 KiB
     """
     if maxbytes is not None and maxbytes > 0:
         end = min(end, start + maxbytes)
 
-    file.seek(start)
+    read, update = file.read, hasher.update  # Operations
 
-    size = end - start                 # total size in bytes to hash
-    nblocks = size // blocksize        # n full blocks
-    last_blocksize = size % blocksize  # spare data, not enough for a block
+    size = end - start
+    nblocks = size // blocksize
+    spare_block_size = size % blocksize
 
-    for read in repeat(file.read, nblocks):
-        block = read(blocksize)
-        hasher.update(block)
+    blocksizes = repeat(blocksize, nblocks)
+    if spare_block_size:
+        blocksizes = chain(blocksizes, [spare_block_size])
 
-    if last_blocksize:
-        block = file.read(last_blocksize)
-        hasher.update(block)
+    file.seek(start)  # jump headers
+    consume(update(read(size)) for size in blocksizes)
 
     return hasher.hexdigest()
+
+
+def consume(iterator):
+    """ Consume the entire iterator ignoring its result """
+    # feed the entire iterator into a 0-length deque
+    deque(iterator, maxlen=0)
 
 
 def memento(function):
