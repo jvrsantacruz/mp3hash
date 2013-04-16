@@ -1,10 +1,12 @@
 # mp3hash
 
+[![Build Status](https://travis-ci.org/jvrsantacruz/mp3hash.png?branch=master)](https://travis-ci.org/jvrsantacruz/mp3hash)
+
 Hashes music files ignoring meta-data.
 
 Useful to detect the same song in different tagged files.
 
-The following metadata standards are supported:
+The following meta-data standards are supported:
 
     id3v1, id3v1 extended, id3v2.2, id3v2.3 and id3v.24
 
@@ -12,9 +14,10 @@ Known to work with: `python2.6` and `python2.7`
 
 Javier Santacruz (2012-2013)
 
-# Command line usage
+# Command line tool
 
-Similarly to `sha1sum` or `md5sum`, it takes one or more files and returns the hashes, in this way:
+Similarly to other well-known tools like `sha1sum` or `md5sum`, it takes one or more files and
+outputs the hashes. It matches those program's interface as much as possible.
 
 ```bash
 $ mp3hash *.mp3
@@ -22,7 +25,8 @@ $ mp3hash *.mp3
 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33 14_Hotel-California-(Gipsy-Kings).mp3
 ```
 
-It returns the same hash number, even though the tags are different, and so their regular hashes:
+You can see how it returns the same hash number for either file, even though their tags are
+different, and so the data inside them. 
 
 ```bash
 $ sha1sum *.mp3
@@ -30,12 +34,12 @@ $ sha1sum *.mp3
 c28d6976114d31df3366d9935eb0bedd36cf1f0b  14_Hotel-California-(Gipsy-Kings).mp3
 ```
 
-The hash it's made strictly using the music data in the file, by calculating the tags sizes and
-omitting them.
+The hash it's made strictly using the music data in the file. This is done by calculating the tags
+sizes and ignoring them when calculating the hash, thus hashing only the music data in the file.
 
 The default hashing algorithm is `sha-1`, but any algorithm can be used as long it's supported by
 the Python's `hashlib` module. A complete list of all available hashing algorithms can be obtained
-by calling the program with the `--list-algorithms`.
+by calling the program with the `--list-algorithms` flag.
 
 ```bash
 $ ./mp3hash --list-algorithms
@@ -47,28 +51,35 @@ sha384
 sha512
 ```
 
+Any of the algorithms listed will be available to consume and hash the content files.
+
 ```bash
 ./mp3hash --algorithm md5
 ac0fdd89454528d3fbdb19942a2e6653 13_Hotel-California-(Gipsy-Kings).mp3
 ac0fdd89454528d3fbdb19942a2e6653 14_Hotel-California-(Gipsy-Kings).mp3
 ```
 
+You can even extend the library with your own hash functions, see the _development_ section to read
+about the API and how to use it.
+
 # Installation
 
 It doesn't have any dependences besides `python2.7+`.
+
 In order to access to the `mp3hash` script, the package should be installed.
 
     python setup.py install
 
-And the `mp3hash` command should be available in path.
+Just afterwards, the `mp3hash` command should be available in path.
 
 # API
 
-The main components are the mp3hash function and the TaggedFile class.
+The main components are the `mp3hash` function and the `TaggedFile` class.
 
-- mp3hash will compute the hash on the music (and only the music)
+## mp3hash
+
+`mp3hash.mp3hash` will compute the hash on the music (and only the music)
   of the file in the given path.
-
 
 ```python
 >> from mp3hash import mp3hash
@@ -76,22 +87,28 @@ The main components are the mp3hash function and the TaggedFile class.
 Out: 6611bc5b01a2fc6a6386a871e8c51f86e1f12b33
 ```
 
-- TaggedFile class takes a file-like object supporting
-  seek and negative values for seek and will parse all the sizes
-  for the metadata stored within it.
+## TaggedFile
+
+`mp3hash.TaggedFile` class takes a file-like object supporting seek with negative values and will
+parse all the sizes and offsets for the meta-data tags stored within it.
 
 ```python
 >> from mp3hash import TaggedFile
 >> with open('/path/to/song.mp3') as file:
     TaggedFile(file).has_id3v2
 Out: True
+    TaggedFile(file).music_limits
+Out: (4096, 5315810)
 ```
 
-- Bring your own hash/checksum!
+## Bring your own hash/checksum!
 
-Any object matching the `update` and `hexdigest` methods, follows the hasher protocol and thereby can be used along with the function.
+Any object matching the `update` and `hexdigest` methods, follows the hasher protocol and thereby
+can be used along with the function.
 
-If your method does not match this protocol, you can always adapt it. As an example, it should be easy enough to wrap the `adler32` checksum algorithm to make it work with mp3hash.
+If your method happens to do not match this protocol, you can always adapt it. As an example and
+demonstration, we could carry out a little experiment. It should be easy enough to wrap the very
+fast `adler32` checksum algorithm to make it work with `mp3hash`.
 
 ```python
 >> import zlib
@@ -102,9 +119,10 @@ If your method does not match this protocol, you can always adapt it. As an exam
           self.value = None
 
       def update(self, data):
+      	  # First call: adler32(data), following calls: adler32(data, value)
           self.value = zlib.adler32(
               data, *([self.value] if self.value is not None else [])
-          ) & 0xffffffff
+          ) & 0xffffffff  # crop it down to 32bit, cross-version
 
       def hexdigest(self):
           return hex(self.value)
@@ -117,21 +135,22 @@ Out: '0x40b1519d'
 
 ## Testing environment
 
-You're adviced to use a virtualenv
+You're encouraged to use a _virtualenv_
 
 ```bash
 $ virtualenv --python python2 --distribute env
-$ . env/bin/activate
+$ source env/bin/activate
 ```
 
-Once into the virtualenv, install the package and the testing dependences.
+Once into the _virtualenv_, install the package and the testing dependences.
 
 ```bash
 $(env) python setup.py develop
 $(env) pip install -r dev-reqs.txt
 ```
 
-In order to perform the testing, run 'nosetests' from the root of the project (same dir of setup.py).
+In order to perform the testing, use the `nosetests` test runner and collector from the root of the
+project (same directory as of the `setup.py` file).
 
 ```bash
 $ nosetests
