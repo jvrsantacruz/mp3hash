@@ -6,3 +6,7 @@
 *.egg-info
 build
 dist
+.tox
+.venv
+env
+nonexistent.txt
