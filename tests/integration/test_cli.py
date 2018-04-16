@@ -6,7 +6,7 @@ import hashlib
 import subprocess
 
 from hamcrest import *
-from tests.integration import SONG1_PATH, SONG2_PATH
+from tests.integration import SONG1_PATH, SONG2_PATH, SONG1_PATH2
 
 import mp3hash
 
@@ -156,7 +156,7 @@ class TestOutputOption(object):
 
 class TestHashing(object):
     def test_existent_file_returns_ok(self):
-        retcode, output = call(SCRIPT, SONG1_PATH)
+        retcode, output = call(SCRIPT, SONG1_PATH2)
 
         assert_that(retcode, is_(OK))
 

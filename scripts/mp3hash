@@ -19,11 +19,11 @@ ALGORITHMS = getattr(
 
 
 def error(msg):
-    print(u'Error: ' + msg)
+    print('Error: ' + msg)
 
 
 def list_algorithms():
-    print(u'\n'.join(ALGORITHMS))
+    print('\n'.join(ALGORITHMS))
 
 
 def main():
@@ -34,12 +34,12 @@ def main():
 
     if not args and not opts.list_algorithms:
         parser.print_help()
-        error(u"\nInsufficient arguments")
+        error("\nInsufficient arguments")
         return errno.EINVAL
 
     if opts.maxbytes is not None and opts.maxbytes <= 0:
         parser.print_help()
-        error(u"\nInvalid value for --maxbytes it should be a positive integer")
+        error("\nInvalid value for --maxbytes it should be a positive integer")
         return errno.EINVAL
 
     if opts.list_algorithms:
@@ -47,14 +47,14 @@ def main():
         return 0
 
     if opts.algorithm not in ALGORITHMS:
-        error(u"Unknown '{0}' algorithm. Available options are: {1}"
+        error("Unknown '{0}' algorithm. Available options are: {1}"
               .format(opts.algorithm, ", ".join(ALGORITHMS)))
         return errno.EINVAL
 
     for arg in args:
         path = os.path.realpath(arg)
         if not os.path.isfile(path):
-            print(u"File at '{0}' does not exist or it is not a regular file"
+            print("File at '{0}' does not exist or it is not a regular file"
                   .format(arg))
             continue
 
@@ -62,7 +62,7 @@ def main():
         hash = mp3hash.mp3hash(path, maxbytes=opts.maxbytes, hasher=hasher)
 
         # display file hash or just the hash
-        filename = u'' if opts.hash else u' ' + os.path.basename(path)
+        filename = '' if opts.hash else ' ' + os.path.basename(path)
 
         print(hash + filename)
 
@@ -99,7 +99,7 @@ def redirect_output(path):
         sys.stdout = open(path, 'w')
     except IOError as err:
         sys.stdout = stdout
-        error(u"Couldn't open {0}: {1}".format(path, err))
+        error("Couldn't open {0}: {1}".format(path, err))
         sys.exit(errno.ENOENT)
 
 

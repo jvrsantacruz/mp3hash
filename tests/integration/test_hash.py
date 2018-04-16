@@ -9,8 +9,7 @@ from nose.tools import raises
 
 from mp3hash import mp3hash
 
-from tests.integration import SONG1_PATH, SONG2_PATH
-
+from tests.integration import SONG1_PATH, SONG2_PATH, SONG1_PATH2
 
 SONG_SIZE = os.path.getsize(SONG1_PATH)
 
@@ -22,8 +21,10 @@ class TestHashOperations(object):
 
     def test_mp3hash(self):
         hash1 = mp3hash(SONG1_PATH)
+        hash12 = mp3hash(SONG1_PATH2)
         hash2 = mp3hash(SONG2_PATH)
         assert_that(hash1, is_(equal_to(hash2)))
+        assert_that(hash12, is_(equal_to(hash2)))
 
     def test_algs(self):
         "Test generator for every algorithm"
